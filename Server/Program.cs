@@ -1,4 +1,4 @@
-﻿//using ServerCore;
+﻿using ServerCore;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -12,14 +12,17 @@ namespace Server
 
         static void Main(string[] args)
         {
-            //Listener _listener = new Listener();
+            Listener _listener = new Listener();
             string host = Dns.GetHostName();
             var ip = Dns.GetHostEntry(host);
             var ipAddress = ip.AddressList[0];
             var endPoint = new IPEndPoint(ipAddress, 1234);
-            //_listener.Init(endPoint);
-            //_listener.Open();
-            
+            _listener.Init(endPoint, ()=>new ClientSession());
+            _listener.Open();
+            while (true)
+            {
+
+            }
         }
     }
 }

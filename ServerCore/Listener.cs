@@ -12,35 +12,42 @@ namespace ServerCore
     {
         Socket _socket;
         IPEndPoint _endPoint;
-        public void Init(IPEndPoint endPoint)
+        Func<Session> _sessionFactory;
+        public void Init(IPEndPoint endPoint, Func<Session> func)
         {
             _socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             _endPoint = endPoint;
+            _sessionFactory += func;
         }
         public void Open()
         {
             _socket.Bind(_endPoint);
             _socket.Listen(100);
             var args = new SocketAsyncEventArgs();
-            args.Completed += OnRecvCompleted;
-            RegisterRecv(args);
+            args.Completed += OnAcceptCompleted;
+            RegisterAccept(args);
         }
-        void RegisterRecv(SocketAsyncEventArgs args)
+        void RegisterAccept(SocketAsyncEventArgs args)
         {
-            if (!_socket.ReceiveAsync(args))
-                OnRecvCompleted(null, args);
+            args.AcceptSocket = null;
+            bool pending = _socket.AcceptAsync(args);
+            if (pending == false)
+                OnAcceptCompleted(this, args);
         }
-        void OnRecvCompleted(object sender, SocketAsyncEventArgs args)
+        
+        void OnAcceptCompleted(object sender, SocketAsyncEventArgs args)
         {
             if(args.SocketError == SocketError.Success)
             {
-                Console.WriteLine("Recieved Packet");
+                var session = _sessionFactory.Invoke();
+                session.Init(args.AcceptSocket);
+                session.RegisterReceive();
             }
             else
             {
-                Console.WriteLine($"Socket Recieve Failed : {args.SocketError}");
+                Console.WriteLine($"Socket Accept Failed : {args.SocketError}");
             }
-            RegisterRecv(args);
+            RegisterAccept(args);
         }
     }
 }
