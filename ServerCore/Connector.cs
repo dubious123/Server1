@@ -33,7 +33,7 @@ namespace ServerCore
             {
                 var session = _sessionFactory.Invoke();
                 session.Init(args.ConnectSocket);
-                session.RegisterSend(new ArraySegment<byte>(new byte[10]));
+                session.OnConnected();
             }
             else
             {

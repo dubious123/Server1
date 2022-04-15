@@ -7,4 +7,8 @@
     <StartupObject />
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PacketTools\PacketTools.csproj" />
+  </ItemGroup>
+
 </Project>

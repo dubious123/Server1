@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Collections.Concurrent;
+using PacketTools;
 
 namespace ServerCore
 {
@@ -14,17 +15,16 @@ namespace ServerCore
         public abstract void OnReceive(SocketAsyncEventArgs args);
         public abstract void OnDisconnect();
 
-        Socket _socket;
-        SocketAsyncEventArgs _recvArgs = new SocketAsyncEventArgs();
-        SocketAsyncEventArgs _sendArgs = new SocketAsyncEventArgs();
-        ArraySegment<byte> _recvBuff = new ArraySegment<byte>(new byte[4096]);
-        Queue<ArraySegment<byte>> _sendQueue = new Queue<ArraySegment<byte>>();
-        List<ArraySegment<byte>> _sendList = new List<ArraySegment<byte>>();
+        protected Socket _socket;
+        protected SocketAsyncEventArgs _recvArgs = new SocketAsyncEventArgs();
+        protected SocketAsyncEventArgs _sendArgs = new SocketAsyncEventArgs();
+        protected RecvBuffer _recvBuff = new RecvBuffer(4049);
+        protected SendBuffer _sendBuff = new SendBuffer();
+        protected List<ArraySegment<byte>> _sendList = new List<ArraySegment<byte>>();
 
         object _lock = new object();
         public void Clear()
         {
-            _sendQueue.Clear();
             _sendList.Clear();
         }
         public void Init(Socket socket)
@@ -33,24 +33,27 @@ namespace ServerCore
             _recvArgs.Completed += OnReceiveCompleted;
             _sendArgs.Completed += OnSendCompleted;
         }
-        
+        //시작점
+        public void OnConnected()
+        {
+            //Test
+            TestPacket1 packet = new TestPacket1(1, "Jonghun", "Hello");
+            var segment = PacketMgr.Inst.PacketToByte(packet);
+            RegisterSend(segment);
+        }
         #region Send
         //todo -> lock free
         public void RegisterSend(ArraySegment<byte> packet)
         {
             lock (_lock)
             {
-                _sendQueue.Enqueue(packet);
-                Send();
+                _sendBuff.Write(packet);
             }
+            Send();
         }
         void Send()
         {
-            while (_sendQueue.Count > 0)
-            {
-                _sendList.Add(_sendQueue.Dequeue());
-            }
-            _sendArgs.BufferList = _sendList;
+            _sendArgs.BufferList = _sendBuff.ReadAll();
             bool pending = _socket.SendAsync(_sendArgs);
             if (!pending)
                 OnSendCompleted(null, _sendArgs);
@@ -72,7 +75,8 @@ namespace ServerCore
         #region Receive
         public void RegisterReceive()
         {
-            _recvArgs.SetBuffer(_recvBuff);
+            _recvBuff.Clear();
+            _recvArgs.SetBuffer(_recvBuff.WriteSegment);
             bool pending =_socket.ReceiveAsync(_recvArgs);
             if (!pending)
                 OnReceiveCompleted(null, _recvArgs);
@@ -81,6 +85,11 @@ namespace ServerCore
         {
             if (args.SocketError == SocketError.Success && args.BytesTransferred > 0)
             {
+                if (!_recvBuff.OnWrite(args.BytesTransferred))
+                {
+                    Console.WriteLine("RecvBuff don't have enough space");
+                    return;
+                }
                 OnReceive(args);
                 RegisterReceive();
             }

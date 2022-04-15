@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using ServerCore;
+using PacketTools;
 
 namespace DummyClient
 {
@@ -17,7 +18,9 @@ namespace DummyClient
 
         public override void OnReceive(SocketAsyncEventArgs args)
         {
-            Console.WriteLine($"From {args.RemoteEndPoint} Received {args.BytesTransferred}");
+            Console.WriteLine($"From {_socket.RemoteEndPoint} Received {args.BytesTransferred}");
+            //var receiePacket = PacketSerializer.DeSerialize_Json<TestPacket1>(_recvBuff.Array);
+ 
         }
 
         public override void OnSend(SocketAsyncEventArgs args)

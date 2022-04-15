@@ -21,7 +21,7 @@ namespace DummyClient
                 Connector _connector = new Connector();
                 _connector.Init(endPoint, () => new ServerSession());
                 _connector.Connect();
-                Thread.Sleep(1000);
+                Thread.Sleep(1);
             }
         }
     }

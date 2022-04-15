@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "..\Test\Test.csproj
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{D235165B-0A8A-49FC-B2C0-8E551CA9A832}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PacketTools", "..\PacketTools\PacketTools.csproj", "{1B8E26ED-2E12-4627-AC6D-16358FE4440E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PacketTools", "..\PacketTools\PacketTools.csproj", "{1B8E26ED-2E12-4627-AC6D-16358FE4440E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
