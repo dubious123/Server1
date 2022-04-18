@@ -20,23 +20,12 @@ namespace Server
         public override void OnReceive(SocketAsyncEventArgs args)
         {
             var packets = PacketMgr.Inst.ByteToPacket(_recvBuff);
-            Console.WriteLine($"From {_socket.RemoteEndPoint} Received {args.BytesTransferred}");
+            Console.WriteLine($"모아받은 패킷 수 : {packets.Count}");
 
-            Console.WriteLine($"Number of receive packets : {packets.Count}");
             foreach (var packet in packets)
             {
-                
-                
-                if(packet is TestPacket1)
-                {
-                    var t = packet as TestPacket1;
-                    Console.WriteLine($"Name : {t.Name}");
-                    Console.WriteLine($"Caht : {t.Chat}");
-                }
-
-
+                PacketHandler.Inst.HandlePacket(packet, this);
             }
-
         }
 
 

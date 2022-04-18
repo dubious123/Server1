@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Collections.Concurrent;
 using PacketTools;
+using System.Threading;
 
 namespace ServerCore
 {
@@ -18,11 +19,9 @@ namespace ServerCore
         protected Socket _socket;
         protected SocketAsyncEventArgs _recvArgs = new SocketAsyncEventArgs();
         protected SocketAsyncEventArgs _sendArgs = new SocketAsyncEventArgs();
-        protected RecvBuffer _recvBuff = new RecvBuffer(4049);
+        protected RecvBuffer _recvBuff = new RecvBuffer(40490);
         protected SendBuffer _sendBuff = new SendBuffer();
         protected List<ArraySegment<byte>> _sendList = new List<ArraySegment<byte>>();
-
-        object _lock = new object();
         public void Clear()
         {
             _sendList.Clear();
@@ -39,24 +38,42 @@ namespace ServerCore
             //Test
             TestPacket1 packet = new TestPacket1(1, "Jonghun", "Hello");
             var segment = PacketMgr.Inst.PacketToByte(packet);
-            RegisterSend(segment);
+            for(int i = 0; i < 100; i++)
+            {
+                RegisterSend(segment);
+            }
+            
+            RegisterReceive();
         }
         #region Send
         //todo -> lock free
+        static readonly object _lock = new object();
         public void RegisterSend(ArraySegment<byte> packet)
         {
             lock (_lock)
             {
                 _sendBuff.Write(packet);
             }
-            Send();
+            
+            JobMgr.Inst.Push("Send", Send);
         }
+        bool pending = false;
         void Send()
         {
-            _sendArgs.BufferList = _sendBuff.ReadAll();
-            bool pending = _socket.SendAsync(_sendArgs);
+            if (pending)
+                return;
+            var list = _sendBuff.ReadAll();
+            if (list.Count == 0)
+                return;
+
+            _sendArgs.BufferList = new List<ArraySegment<byte>>();
+            _sendArgs.BufferList = list;
+            Console.WriteLine($"Sending {_sendArgs.BufferList.Count} Packets");
+            pending = _socket.SendAsync(_sendArgs);
             if (!pending)
                 OnSendCompleted(null, _sendArgs);
+
+
         }
         void OnSendCompleted(object sender, SocketAsyncEventArgs args)
         {

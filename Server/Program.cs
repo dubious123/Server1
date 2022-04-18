@@ -19,6 +19,8 @@ namespace Server
             var endPoint = new IPEndPoint(ipAddress, 1234);
             _listener.Init(endPoint, ()=>new ClientSession());
             _listener.Open();
+            JobMgr.Inst.CreateJobQueue("Send", 250, true);
+            JobMgr.Inst.CreateJobQueue("Json", 0, true);
             while (true)
             {
 

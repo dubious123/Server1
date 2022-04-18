@@ -23,9 +23,13 @@ namespace ServerCore
         {
             _socket.Bind(_endPoint);
             _socket.Listen(100);
-            var args = new SocketAsyncEventArgs();
-            args.Completed += OnAcceptCompleted;
-            RegisterAccept(args);
+            for(int i = 0; i < 10; i++)
+            {
+                var args = new SocketAsyncEventArgs();
+                args.Completed += OnAcceptCompleted;
+                RegisterAccept(args);
+            }
+
         }
         void RegisterAccept(SocketAsyncEventArgs args)
         {

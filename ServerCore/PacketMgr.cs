@@ -36,7 +36,7 @@ namespace ServerCore
             }
             return list;
         }
-
+        
         T BuildPacket<T>(byte[] json) where T : IPacket, new()
         {
             return PacketSerializer.DeSerialize_Json<T>(json);
@@ -45,10 +45,14 @@ namespace ServerCore
 
 
         public byte[] PacketToByte<T>(T packet) where T : IPacket
-        {
-            
+        {           
             var json = PacketSerializer.Serialize_Json<T>(packet);
             return AttachHeader((ushort)(json.Length + 4), packet.PacketId, json);
+        }
+        public void PacketToByte<T>(T packet, out byte[] arr) where T : IPacket
+        {
+            var json = PacketSerializer.Serialize_Json<T>(packet);
+            arr = AttachHeader((ushort)(json.Length + 4), packet.PacketId, json);
         }
         byte[] AttachHeader(ushort size, ushort id, byte[] json)
         {

@@ -17,15 +17,18 @@ namespace ServerCore
             _endPoint = endPoint;
             _sessionFactory += func;
         }
-        public void Connect()
+        public void Connect(int count)
         {
-            var args = new SocketAsyncEventArgs();
-            args.Completed += OnConnectCompleted;
-            args.RemoteEndPoint = _endPoint;
-            var socket = new Socket(_endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            bool pending = socket.ConnectAsync(args);
-            if (pending == false)
-                OnConnectCompleted(this, args);
+            for(int i = 0; i< count; i++)
+            {
+                var args = new SocketAsyncEventArgs();
+                args.Completed += OnConnectCompleted;
+                args.RemoteEndPoint = _endPoint;
+                var socket = new Socket(_endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                bool pending = socket.ConnectAsync(args);
+                if (pending == false)
+                    OnConnectCompleted(this, args);
+            }
         }
         public void OnConnectCompleted(object sender, SocketAsyncEventArgs args)
         {

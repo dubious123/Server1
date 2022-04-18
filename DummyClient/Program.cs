@@ -15,14 +15,13 @@ namespace DummyClient
             var ip = Dns.GetHostEntry(host);
             var ipAddress = ip.AddressList[0];
             var endPoint = new IPEndPoint(ipAddress, 1234);
+            Connector _connector = new Connector();
+            _connector.Init(endPoint, () => new ServerSession());
+            _connector.Connect(500);
 
-            for (; true; )
-            {
-                Connector _connector = new Connector();
-                _connector.Init(endPoint, () => new ServerSession());
-                _connector.Connect();
-                Thread.Sleep(1);
-            }
+            JobMgr.Inst.CreateJobQueue("Send", 0, true);
+            JobMgr.Inst.CreateJobQueue("Json", 0, true);
+            Console.ReadLine();
         }
     }
 }

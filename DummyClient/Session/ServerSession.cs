@@ -18,8 +18,13 @@ namespace DummyClient
 
         public override void OnReceive(SocketAsyncEventArgs args)
         {
-            Console.WriteLine($"From {_socket.RemoteEndPoint} Received {args.BytesTransferred}");
-            //var receiePacket = PacketSerializer.DeSerialize_Json<TestPacket1>(_recvBuff.Array);
+            var packets = PacketMgr.Inst.ByteToPacket(_recvBuff);
+            Console.WriteLine($"모아받은 패킷 수 : {packets.Count}");
+            foreach (var packet in packets)
+            {
+                PacketHandler.Inst.HandlePacket(packet, this);
+            }
+            
  
         }
 

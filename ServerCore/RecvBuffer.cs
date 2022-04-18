@@ -26,7 +26,7 @@ namespace ServerCore
         }
         public ArraySegment<byte> Read(int size)
         {
-            //Todo
+            
             var segment = ReadSegment;
             if (segment.Count < size)
                 return null;
@@ -45,7 +45,7 @@ namespace ServerCore
         }
         public void Clear()
         {
-            var leftDataSize = _readPos - _writePos;
+            var leftDataSize = _writePos - _readPos;
             if (leftDataSize != 0)
             {
                 Array.Copy(_buffer, _readPos, _buffer, 0, leftDataSize);
