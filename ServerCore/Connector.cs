@@ -41,6 +41,8 @@ namespace ServerCore
             else
             {
                 OnConnectFailed();
+                Console.WriteLine("Trying again");
+                Connect(1);
             }
         }
         public void OnConnectFailed()

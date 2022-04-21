@@ -45,7 +45,7 @@ namespace ServerCore
             {
                 var session = _sessionFactory.Invoke();
                 session.Init(args.AcceptSocket);
-                session.RegisterReceive();
+                session.OnConnected();
             }
             else
             {

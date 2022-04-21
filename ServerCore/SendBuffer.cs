@@ -13,7 +13,8 @@ namespace ServerCore
         object _lock = new object();
         public void Write(ArraySegment<byte> data)
         {
-            _sendList.Add(data);
+            lock(_lock)
+                _sendList.Add(data);
         }
         public List<ArraySegment<byte>> ReadAll()
         {
@@ -25,13 +26,20 @@ namespace ServerCore
                     if (segment != null)
                         sendList.Add(segment);
                 }
+                _sendList.Clear();
             }
-            _sendList.Clear();
+
+            
             return sendList;
         }
         public bool IsEmpty()
         {
             return _sendList.Count == 0;
+        }
+        public void Clear()
+        {
+            lock (_lock)
+                _sendList.Clear();
         }
     }
 }

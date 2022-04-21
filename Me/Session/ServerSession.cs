@@ -1,13 +1,12 @@
-﻿using System;
+﻿using ServerCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using ServerCore;
-using PacketTools;
 
-namespace DummyClient
+namespace Me
 {
     public class ServerSession : Session
     {
@@ -26,7 +25,7 @@ namespace DummyClient
         {
             var packets = PacketMgr.Inst.ByteToPacket(_recvBuff);
             Console.WriteLine($"모아받은 패킷 수 : {packets.Count}");
-            JobMgr.Inst.Push("PacketHandle", () => 
+            JobMgr.Inst.Push("PacketHandle", () =>
             {
                 foreach (var packet in packets)
                 {
@@ -34,10 +33,18 @@ namespace DummyClient
                 }
             });
         }
-
         public override void OnSend(SocketAsyncEventArgs args)
         {
             Console.WriteLine($"To {_socket.RemoteEndPoint} Sent {args.BytesTransferred}");
+        }
+        public override void OnReceiveFailed(Exception ex)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void OnSendFailed(Exception ex)
+        {
+            throw new NotImplementedException();
         }
     }
 }

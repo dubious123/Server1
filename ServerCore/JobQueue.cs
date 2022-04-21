@@ -54,19 +54,14 @@ namespace ServerCore
                 //_resetEvent.WaitOne();
                 if (_waitTick < Environment.TickCount - _now)
                 {
-                    for(;_jobQueue.Count >0 ; )
+                    lock (_lock)
                     {
-                        Console.WriteLine($"{Thread.CurrentThread.ManagedThreadId}");
-                        Action action;
-                        lock (_lock)
+                        var i = _jobQueue.Count;
+                        for (int j = 0; j < i; j++) 
                         {
-                            action = _jobQueue.Dequeue();
-
-                            
-                        }
-                        action.Invoke();
+                            _jobQueue.Dequeue().Invoke();
+                        }                  
                     }
-                    
                     _now = Environment.TickCount;
                 }
             }           

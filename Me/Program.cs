@@ -1,14 +1,12 @@
-﻿using System.Net.Sockets;
+﻿
+using ServerCore;
 using System;
 using System.Net;
-using System.Threading;
-using ServerCore;
 
-namespace DummyClient
+namespace Me
 {
     class Program
     {
-        
         static void Main(string[] args)
         {
             string host = Dns.GetHostName();
@@ -17,12 +15,15 @@ namespace DummyClient
             var endPoint = new IPEndPoint(ipAddress, 1234);
             Connector _connector = new Connector();
             _connector.Init(endPoint, () => SessionMgr.Inst.GenerateSession<ServerSession>());
-            _connector.Connect(500);
+            _connector.Connect(1);
 
             JobMgr.Inst.CreateJobQueue("Send", 250, true);
             JobMgr.Inst.CreateJobQueue("Json", 0, true);
             JobMgr.Inst.Push("Send", SessionMgr.Inst.Flush_Send);
-            Console.ReadLine();
+
+            CmdMgr.Inst.Run();
+
+            
         }
     }
 }

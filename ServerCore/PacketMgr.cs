@@ -16,7 +16,8 @@ namespace ServerCore
         PacketMgr()
         {
             _readDict = new Dictionary<ushort, Func<byte[], IPacket>>();
-            _readDict.Add(1, BuildPacket<TestPacket1>);
+            _readDict.Add((ushort)Define.PacketId.c_login, BuildPacket<C_LoginPacket>);
+            _readDict.Add((ushort)Define.PacketId.s_login, BuildPacket<S_LoginPacket>);
         }
 
         public List<IPacket> ByteToPacket(RecvBuffer buffer)
@@ -37,7 +38,7 @@ namespace ServerCore
             return list;
         }
         
-        T BuildPacket<T>(byte[] json) where T : IPacket, new()
+        T BuildPacket<T>(byte[] json) where T : IPacket
         {
             return PacketSerializer.DeSerialize_Json<T>(json);
         }
@@ -53,6 +54,10 @@ namespace ServerCore
         {
             var json = PacketSerializer.Serialize_Json<T>(packet);
             arr = AttachHeader((ushort)(json.Length + 4), packet.PacketId, json);
+            if(arr == null)
+            {
+                throw new Exception();
+            }
         }
         byte[] AttachHeader(ushort size, ushort id, byte[] json)
         {

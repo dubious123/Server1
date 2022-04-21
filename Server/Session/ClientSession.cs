@@ -11,9 +11,17 @@ namespace Server
 {
     class ClientSession : Session
     {
+        public override void OnConnected()
+        {
+            Console.WriteLine($"From client endpoint {_socket.RemoteEndPoint} Connected");
+            RegisterReceive();
+        }
+
         public override void OnDisconnect()
         {
-            throw new NotImplementedException();
+            _sendRegistered = false;
+            Console.WriteLine($"From client endpoint {_socket.RemoteEndPoint} DisConnected");
+            SessionMgr.Inst.Remove(SessionID);
         }
 
 
@@ -21,17 +29,29 @@ namespace Server
         {
             var packets = PacketMgr.Inst.ByteToPacket(_recvBuff);
             Console.WriteLine($"모아받은 패킷 수 : {packets.Count}");
-
-            foreach (var packet in packets)
+            JobMgr.Inst.Push("PacketHandle", () =>
             {
-                PacketHandler.Inst.HandlePacket(packet, this);
-            }
+                foreach (var packet in packets)
+                {
+                    PacketHandler.Inst.HandlePacket(packet, this);
+                }
+            });
+
         }
+
 
 
         public override void OnSend(SocketAsyncEventArgs args)
         {
             Console.WriteLine($"To {args.RemoteEndPoint} Sent {args.BytesTransferred}");
+        }
+        public override void OnReceiveFailed(Exception ex)
+        {
+            throw new NotImplementedException();
+        }
+        public override void OnSendFailed(Exception ex)
+        {
+            throw new NotImplementedException();
         }
     }
 }

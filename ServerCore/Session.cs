@@ -15,7 +15,13 @@ namespace ServerCore
         public abstract void OnSend(SocketAsyncEventArgs args);
         public abstract void OnReceive(SocketAsyncEventArgs args);
         public abstract void OnDisconnect();
+        public abstract void OnConnected();
+        public abstract void OnSendFailed(Exception ex);
+        public abstract void OnReceiveFailed(Exception ex);
+        public uint SessionID;
+        public bool SendRegistered { get { return _sendRegistered; } }
 
+        protected bool _sendRegistered = false;
         protected Socket _socket;
         protected SocketAsyncEventArgs _recvArgs = new SocketAsyncEventArgs();
         protected SocketAsyncEventArgs _sendArgs = new SocketAsyncEventArgs();
@@ -24,7 +30,12 @@ namespace ServerCore
         protected List<ArraySegment<byte>> _sendList = new List<ArraySegment<byte>>();
         public void Clear()
         {
-            _sendList.Clear();
+            lock (_send)
+            {
+                _sendList.Clear();
+                _recvBuff.Clear();
+                _sendBuff.Clear();
+            }          
         }
         public void Init(Socket socket)
         {
@@ -33,47 +44,41 @@ namespace ServerCore
             _sendArgs.Completed += OnSendCompleted;
         }
         //시작점
-        public void OnConnected()
-        {
-            //Test
-            TestPacket1 packet = new TestPacket1(1, "Jonghun", "Hello");
-            var segment = PacketMgr.Inst.PacketToByte(packet);
-            for(int i = 0; i < 100; i++)
-            {
-                RegisterSend(segment);
-            }
-            
-            RegisterReceive();
-        }
         #region Send
         //todo -> lock free
-        static readonly object _lock = new object();
+        static readonly object _send = new object();
         public void RegisterSend(ArraySegment<byte> packet)
         {
-            lock (_lock)
-            {
-                _sendBuff.Write(packet);
-            }
-            
-            JobMgr.Inst.Push("Send", Send);
+            _sendBuff.Write(packet);
+            if (!_sendRegistered)
+                _sendRegistered = true;
         }
-        bool pending = false;
-        void Send()
+        bool _sendPending = false;
+
+        /// <summary>
+        /// Do not use directly
+        /// </summary>
+        public void Send()
         {
-            if (pending)
+
+            if (_sendPending)
                 return;
             var list = _sendBuff.ReadAll();
             if (list.Count == 0)
                 return;
-
-            _sendArgs.BufferList = new List<ArraySegment<byte>>();
+            _sendRegistered = false;
             _sendArgs.BufferList = list;
-            Console.WriteLine($"Sending {_sendArgs.BufferList.Count} Packets");
-            pending = _socket.SendAsync(_sendArgs);
-            if (!pending)
-                OnSendCompleted(null, _sendArgs);
-
-
+            Console.WriteLine($"From Session {SessionID} Sending {_sendArgs.BufferList.Count} Packets");
+            try
+            {
+                _sendPending = _socket.SendAsync(_sendArgs);
+                if (!_sendPending)
+                    OnSendCompleted(null, _sendArgs);
+            }
+            catch (Exception ex)
+            {
+                OnSendFailed(ex);
+            }
         }
         void OnSendCompleted(object sender, SocketAsyncEventArgs args)
         {
@@ -83,20 +88,31 @@ namespace ServerCore
             }
             else
             {
-                _socket.Close();
+                OnSendFailed(null);
             }
         }
 
         #endregion
 
         #region Receive
+        static readonly object _receive = new object();
         public void RegisterReceive()
         {
-            _recvBuff.Clear();
+            lock (_receive)
+            {
+                _recvBuff.Clear();             
+            }
             _recvArgs.SetBuffer(_recvBuff.WriteSegment);
-            bool pending =_socket.ReceiveAsync(_recvArgs);
-            if (!pending)
-                OnReceiveCompleted(null, _recvArgs);
+            try
+            {
+                bool pending = _socket.ReceiveAsync(_recvArgs);
+                if (!pending)
+                    OnReceiveCompleted(null, _recvArgs);
+            }
+            catch (Exception ex)
+            {
+                OnReceiveFailed(ex);
+            }
         }
         void OnReceiveCompleted(object sender, SocketAsyncEventArgs args)
         {
@@ -111,14 +127,25 @@ namespace ServerCore
                 RegisterReceive();
             }
             else
-                CloseSession();
+                OnReceiveFailed(null);
 
         }
         #endregion
 
         public void CloseSession()
         {
-
+            OnDisconnect();
+            try
+            {
+                _socket.Shutdown(SocketShutdown.Both);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            _socket.Close();
+            
+            Clear();
         }
     }
 }

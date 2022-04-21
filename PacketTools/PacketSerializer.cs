@@ -13,7 +13,7 @@ namespace PacketTools
         {          
             return Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(packet));
         }
-        public static T DeSerialize_Json<T>(byte[] data) where T : class, new()
+        public static T DeSerialize_Json<T>(byte[] data) where T : IPacket
         {
             return JsonConvert.DeserializeObject<T>(Encoding.Unicode.GetString(data));
         }

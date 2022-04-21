@@ -16,6 +16,7 @@ namespace ServerCore
         JobMgr()
         {
             _jobDict = new Dictionary<string, JobQueue>();
+            CreateJobQueue("PacketHandle", 250, true);
 
         }
         public void CreateJobQueue(string name, int waitTick, bool startNow)
@@ -23,7 +24,8 @@ namespace ServerCore
             JobQueue queue = new JobQueue(name, waitTick);
             if (_jobDict.ContainsKey(name))
             {
-                Console.WriteLine("JobQueue name already exists");
+                _jobDict[name] = queue;
+                Console.WriteLine("JobQueue name already exists and replaced");
                 return;
             }
             _jobDict.Add(name, queue);
@@ -32,7 +34,13 @@ namespace ServerCore
         }
         public void Push(string name, Action action)
         {
-            _jobDict[name]?.Push(action);
+            if (!_jobDict.ContainsKey(name))
+            {
+                CreateJobQueue(name, 50, true);
+            }
+            _jobDict[name].Push(action);
+            return;
+
         }
         public void StartQueue(string name)
         {

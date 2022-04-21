@@ -4,10 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace Server
+namespace Me
 {
     public class PacketHandler
     {
@@ -16,8 +15,7 @@ namespace Server
         PacketHandler()
         {
             _handlerDict = new Dictionary<ushort, Action<IPacket, Session>>();
-            _handlerDict.Add((ushort)Define.PacketId.c_login, HandleLogin);
-
+            _handlerDict.Add((ushort)Define.PacketId.s_login, HandleLogin);
         }
         Dictionary<ushort, Action<IPacket, Session>> _handlerDict;
         public void HandlePacket<T, P>(T packet, P session) where T : IPacket where P : Session
@@ -28,11 +26,23 @@ namespace Server
         }
         void HandleLogin(IPacket packet, Session session)
         {
-            var c_packet = packet as C_LoginPacket;
+            var s_packet = packet as S_LoginPacket;
+            if (s_packet.Accepted)
+                CmdMgr.Inst.UpdateState(Define.Cmd_State.done);
+            else
+                CmdMgr.Inst.UpdateState(Define.Cmd_State.error);
 
-            var answer = Gatekeeper.Inst.TryLogin(c_packet.ID, c_packet.PW);
-            S_LoginPacket s_packet = new S_LoginPacket(answer);
-            session.RegisterSend(PacketMgr.Inst.PacketToByte(s_packet));
+        }
+        void HandleTest1(IPacket packet, Session session)
+        {
+            var testPacket = packet as TestPacket1;
+            //Console.WriteLine("Handling TestPacket1");
+
+            //Console.WriteLine($"id : {testPacket.Name} chat : {testPacket.Chat}");
+
+            TestPacket1 callback = new TestPacket1 { Name = "Client", Chat = "Hello From Client", PacketId = 1 };
+
+            session.RegisterSend(PacketMgr.Inst.PacketToByte(callback));
         }
 
     }

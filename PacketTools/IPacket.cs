@@ -8,6 +8,6 @@ namespace PacketTools
 {
     public class IPacket
     {
-        public ushort PacketId = 1;
+        public ushort PacketId = 0;
     }
 }

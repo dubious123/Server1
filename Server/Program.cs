@@ -17,10 +17,12 @@ namespace Server
             var ip = Dns.GetHostEntry(host);
             var ipAddress = ip.AddressList[0];
             var endPoint = new IPEndPoint(ipAddress, 1234);
-            _listener.Init(endPoint, ()=>new ClientSession());
+            _listener.Init(endPoint, ()=>SessionMgr.Inst.GenerateSession<ClientSession>());
             _listener.Open();
+            
             JobMgr.Inst.CreateJobQueue("Send", 250, true);
             JobMgr.Inst.CreateJobQueue("Json", 0, true);
+            JobMgr.Inst.Push("Send", SessionMgr.Inst.Flush_Send);
             while (true)
             {
 
