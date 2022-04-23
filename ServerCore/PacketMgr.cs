@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ServerCore.Packets;
+using ServerCore.Packets.Client;
+using ServerCore.Packets.Server;
 
 namespace ServerCore
 {
@@ -16,8 +19,23 @@ namespace ServerCore
         PacketMgr()
         {
             _readDict = new Dictionary<ushort, Func<byte[], IPacket>>();
-            _readDict.Add((ushort)Define.PacketId.c_login, BuildPacket<C_LoginPacket>);
-            _readDict.Add((ushort)Define.PacketId.s_login, BuildPacket<S_LoginPacket>);
+            _readDict.Add((ushort)Define.P_Id.c_login, BuildPacket<C_Login>);
+            _readDict.Add((ushort)Define.P_Id.c_logout, BuildPacket<C_Logout>);
+            _readDict.Add((ushort)Define.P_Id.c_enterLobby, BuildPacket<C_EnterLobby>);
+            _readDict.Add((ushort)Define.P_Id.c_updateLobby, BuildPacket<C_UpdateLobby>);
+            _readDict.Add((ushort)Define.P_Id.c_enterRoom, BuildPacket<C_EnterRoom>);
+            _readDict.Add((ushort)Define.P_Id.c_exitRoom, BuildPacket<C_ExitRoom>);
+            _readDict.Add((ushort)Define.P_Id.c_updateRoom, BuildPacket<C_UpdateRoom>);
+            _readDict.Add((ushort)Define.P_Id.c_chat, BuildPacket<C_Chat>);
+
+
+            _readDict.Add((ushort)Define.P_Id.s_login, BuildPacket<S_Login>);
+            _readDict.Add((ushort)Define.P_Id.s_logout, BuildPacket<S_Logout>);
+            _readDict.Add((ushort)Define.P_Id.s_enterLobby, BuildPacket<S_EnterLobby>);
+            _readDict.Add((ushort)Define.P_Id.s_updateLobby, BuildPacket<S_UpdateLobby>);
+            _readDict.Add((ushort)Define.P_Id.s_enterRoom, BuildPacket<S_EnterRoom>);
+            _readDict.Add((ushort)Define.P_Id.s_exitRoom, BuildPacket<S_ExitRoom>);
+            _readDict.Add((ushort)Define.P_Id.s_updateRoom, BuildPacket<S_UpdateRoom>);
         }
 
         public List<IPacket> ByteToPacket(RecvBuffer buffer)

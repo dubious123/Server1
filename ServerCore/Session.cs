@@ -47,6 +47,10 @@ namespace ServerCore
         #region Send
         //todo -> lock free
         static readonly object _send = new object();
+        public void RegisterSend(IPacket packet)
+        {
+            RegisterSend(PacketMgr.Inst.PacketToByte(packet));
+        }
         public void RegisterSend(ArraySegment<byte> packet)
         {
             _sendBuff.Write(packet);
@@ -68,7 +72,7 @@ namespace ServerCore
                 return;
             _sendRegistered = false;
             _sendArgs.BufferList = list;
-            Console.WriteLine($"From Session {SessionID} Sending {_sendArgs.BufferList.Count} Packets");
+            //Console.WriteLine($"From Session {SessionID} Sending {_sendArgs.BufferList.Count} Packets");
             try
             {
                 _sendPending = _socket.SendAsync(_sendArgs);

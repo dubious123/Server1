@@ -7,13 +7,15 @@ using System.Threading.Tasks;
 
 namespace ServerCore
 {
-    public class S_LoginPacket : IPacket
+    public class S_Login : IPacket
     {
         public bool Accepted;
-        public S_LoginPacket(bool accept)
+        public UserInfo User;
+        public S_Login(bool accept, UserInfo user)
         {
-            PacketId = (ushort)Define.PacketId.s_login;
+            PacketId = (ushort)Define.P_Id.s_login;
             Accepted = accept;
+            User = user;
         }
     }
 }

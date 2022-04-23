@@ -7,13 +7,13 @@ using PacketTools;
 
 namespace ServerCore
 {
-    public class C_LoginPacket : IPacket
+    public class C_Login : IPacket
     {
         public readonly string ID;
         public readonly string PW;
-        public C_LoginPacket(string id, string pw)
+        public C_Login(string id, string pw)
         {
-            PacketId = (ushort)Define.PacketId.c_login;
+            PacketId = (ushort)Define.P_Id.c_login;
             ID = id;
             PW = pw;
         }

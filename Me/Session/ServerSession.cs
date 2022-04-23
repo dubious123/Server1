@@ -24,7 +24,7 @@ namespace Me
         public override void OnReceive(SocketAsyncEventArgs args)
         {
             var packets = PacketMgr.Inst.ByteToPacket(_recvBuff);
-            Console.WriteLine($"모아받은 패킷 수 : {packets.Count}");
+            //Console.WriteLine($"모아받은 패킷 수 : {packets.Count}");
             JobMgr.Inst.Push("PacketHandle", () =>
             {
                 foreach (var packet in packets)
@@ -35,7 +35,7 @@ namespace Me
         }
         public override void OnSend(SocketAsyncEventArgs args)
         {
-            Console.WriteLine($"To {_socket.RemoteEndPoint} Sent {args.BytesTransferred}");
+            //Console.WriteLine($"To {_socket.RemoteEndPoint} Sent {args.BytesTransferred}");
         }
         public override void OnReceiveFailed(Exception ex)
         {

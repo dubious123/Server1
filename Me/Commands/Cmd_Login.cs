@@ -9,8 +9,18 @@ namespace Me
 {
     public class Cmd_Login : Cmd
     {
+        public override bool PutOption(params string[] options)
+        {
+            return false;
+        }
         public override void Start()
         {
+            if (CheckUserCondition() == false)
+            {
+                Console.WriteLine("already logged in");
+                CmdMgr.Inst.Dequeue();
+                return;
+            }
             Console.Write("ID : ");
             var id = Console.ReadLine();
             Console.Write("Password : ");
@@ -22,7 +32,7 @@ namespace Me
                 UpdateState(Define.Cmd_State.error);
                 return;
             }
-            C_LoginPacket loginPacket = new C_LoginPacket(id, pw);
+            C_Login loginPacket = new C_Login(id, pw);
             var packet = PacketMgr.Inst.PacketToByte(loginPacket);
             SessionMgr.Inst.Find(1).RegisterSend(packet);
             Console.Write("Waiting");
@@ -30,8 +40,10 @@ namespace Me
         }
         public override void Done()
         {
-            Console.WriteLine("\n Login Completed ");
+            Console.WriteLine("\n Login Completed \n");
+            Console.WriteLine($"Hello {ContentMgr.Inst.User.Name}");
             CmdMgr.Inst.Dequeue();
+            CmdMgr.Inst.Enqueue(new Cmd_EnterLobby());
         }
 
         public override void Error()
@@ -50,6 +62,9 @@ namespace Me
             return (pw.Length < 15 && pw.Length > 0);
         }
 
-
+        public override bool CheckUserCondition()
+        {
+            return ContentMgr.Inst.User.UserState == Define.User_State.logout;
+        }
     }
 }

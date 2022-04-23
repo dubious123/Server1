@@ -17,7 +17,14 @@ namespace Me
         CmdMgr()
         {
             _cmdDic = new Dictionary<string, Func<Cmd>>();
+            _cmdDic.Add("help", () => new Cmd_Help());
             _cmdDic.Add("login", () => new Cmd_Login());
+            _cmdDic.Add("logout", () => new Cmd_Logout());
+            _cmdDic.Add("update_lobby", () => new Cmd_UpdateLobby());
+            _cmdDic.Add("update_room", () => new Cmd_UpdateRoom());
+            _cmdDic.Add("enter_room", () => new Cmd_EnterRoom());
+            _cmdDic.Add("exit", () => new Cmd_ExitRoom());
+            _cmdDic.Add("chat", () => new Cmd_Chat());
             _cmdQueue = new ConcurrentQueue<Cmd>();
         }
 
@@ -32,21 +39,32 @@ namespace Me
         }
         public void GetNewCmd()
         {
-            Console.Write("> ");
-            var inst = Console.ReadLine().ToLower();
-            _cmdDic.TryGetValue(inst, out Func<Cmd> factory);
+            var inst = Console.ReadLine().ToLower().Split(' ');
+            if (inst.Length == 0)
+                return;
+            string key = inst[0];
+            _cmdDic.TryGetValue(key, out Func<Cmd> factory);
             if(factory == null)
             {
-                Console.WriteLine(inst + "??\n");
+                Console.WriteLine(key + "??\n");
                 return;
             }
-            _cmdQueue.Enqueue(factory.Invoke());
+            var cmd = factory.Invoke();
+            if(inst.Length > 1)
+            {
+                if (!cmd.PutOption(inst[1..]))
+                {
+                    Console.WriteLine("Invalid Option");
+                    return;
+                }
+            }
+            _cmdQueue.Enqueue(cmd);
         }
-        public bool UpdateState(Cmd_State state)
+        public bool UpdateState(Cmd_State state, string message = null)
         {
             var result = _cmdQueue.TryPeek(out Cmd cmd);
             if (result)
-                cmd.UpdateState(state);
+                cmd.UpdateState(state, message);
             return result;         
         }
         public void Enqueue(Cmd cmd)

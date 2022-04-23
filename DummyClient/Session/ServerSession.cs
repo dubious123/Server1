@@ -35,9 +35,19 @@ namespace DummyClient
             });
         }
 
+        public override void OnReceiveFailed(Exception ex)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void OnSend(SocketAsyncEventArgs args)
         {
             Console.WriteLine($"To {_socket.RemoteEndPoint} Sent {args.BytesTransferred}");
+        }
+
+        public override void OnSendFailed(Exception ex)
+        {
+            throw new NotImplementedException();
         }
     }
 }

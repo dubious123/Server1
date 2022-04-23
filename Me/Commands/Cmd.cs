@@ -16,10 +16,15 @@ namespace Me
             _state = state;
             _waitLimit = waitLimit;
         }
+        public Cmd(Cmd_State state)
+        {
+            _state = state;
+        }
         Cmd_State _state;
         int _waitLimit;
         int _waitCount;
         protected string _errorMessage;
+        
         public void Perform()
         {
             switch (_state)
@@ -59,6 +64,8 @@ namespace Me
                     _errorMessage = message;
             }         
         }
+        public abstract bool PutOption(params string[] options);
+        public abstract bool CheckUserCondition();
         public abstract void Start();
         public abstract void Done();
         public abstract void Error();
