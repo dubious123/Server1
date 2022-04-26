@@ -11,16 +11,19 @@ namespace Server
 {
     class ClientSession : Session
     {
+        public string UserId;
         public override void OnConnected()
         {
-            Console.WriteLine($"From client endpoint {_socket.RemoteEndPoint} Connected");
+            Console.WriteLine($"From client endpoint {_socket?.RemoteEndPoint} Connected");
             RegisterReceive();
         }
 
         public override void OnDisconnect()
         {
             _sendRegistered = false;
-            Console.WriteLine($"From client endpoint {_socket.RemoteEndPoint} DisConnected");
+            if(_socket.Connected)
+                Console.WriteLine($"From client endpoint {_socket?.RemoteEndPoint} DisConnected");
+            Gatekeeper.Inst.TryLogout(UserId);
             SessionMgr.Inst.Remove(SessionID);
         }
 
@@ -47,11 +50,13 @@ namespace Server
         }
         public override void OnReceiveFailed(Exception ex)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"Receiving packet failed");
+            CloseSession();
         }
         public override void OnSendFailed(Exception ex)
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"Sending packet failed");
+            CloseSession();
         }
     }
 }

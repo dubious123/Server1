@@ -47,8 +47,7 @@ namespace ServerCore
         }
         public Room GetRoom(uint roomId)
         {
-            Room room;
-            _roomDict.TryGetValue(roomId, out room);
+            _roomDict.TryGetValue(roomId, out var room);
             return room;
         }
         uint GetNewRoomID()

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ServerCore;
+using ServerCore.Log;
 
 namespace Me
 {
@@ -19,6 +21,12 @@ namespace Me
         Session _session;
 
         List<uint> _roomIdList;
+
+        TraceSource _ts;
+        ContentMgr()
+        {
+            _ts = LogMgr.GetTraceSource("Client");
+        }
         public Session GetSession()
         {
             if(_session == null)
@@ -29,10 +37,12 @@ namespace Me
         }
         public void UpdateUserInfo(UserInfo user)
         {
+            _ts.TraceInfo("[contentMgr] updating user");
             _user = user;
         }
         public void UpdateLobby(LobbyInfo lobbyInfo)
         {
+            _ts.TraceInfo("[contentMgr] updating lobby");
             _lobby = lobbyInfo;
             _roomIdList = new List<uint>();
             foreach (var roomInfo in _lobby.RoomInfoDict.Values)
@@ -60,13 +70,16 @@ namespace Me
         }
         public bool IsValidRoomNum(int num)
         {
-            return _roomIdList?.Count > num;
+            var result = _roomIdList?.Count > num;
+            if (result == false)
+                _ts.TraceEvent(TraceEventType.Error, 1, "[ContentMgr] invalid roomNum");
+            return result;
         }
         public RoomInfo GetRoomInfoByIndex(int index)
         {
             if(IsValidRoomNum(index))
                 return _lobby.RoomInfoDict[_roomIdList[index]];
-            throw new Exception();
+            return new RoomInfo();
         }
 
         public RoomInfo GetRoomInfoByRoomId(uint id)

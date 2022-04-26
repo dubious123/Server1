@@ -1,5 +1,7 @@
 ﻿using ServerCore;
+using ServerCore.Log;
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -12,6 +14,13 @@ namespace Server
 
         static void Main(string[] args)
         {
+            LogMgr.ChooseSaveDir("Server");
+            var ts = LogMgr.AddNewSource("Server",SourceLevels.Information);
+            LogMgr.AddNewConsoleListener("Server", "console", false, SourceLevels.Warning , TraceOptions.DateTime);
+            LogMgr.AddNewTextWriterListener("Server", "text","serverLog.txt", SourceLevels.Information, TraceOptions.DateTime);
+            
+            ts.TraceEvent(TraceEventType.Information, 0, "Start server");
+
             Listener _listener = new Listener();
             string host = Dns.GetHostName();
             var ip = Dns.GetHostEntry(host);

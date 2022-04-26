@@ -35,7 +35,7 @@ namespace Me
             Console.Write($"Entering Room {_roomIndex} ");
             uint roomId = ContentMgr.Inst.GetRoomInfoByIndex(_roomIndex).ID;
             C_EnterRoom c_packet = new C_EnterRoom(ContentMgr.Inst.User, roomId);
-            SessionMgr.Inst.Find(1).RegisterSend(c_packet);
+            ContentMgr.Inst.GetSession().RegisterSend(c_packet);
             CmdMgr.Inst.UpdateState(Define.Cmd_State.wait);
         }
         public override void Done()

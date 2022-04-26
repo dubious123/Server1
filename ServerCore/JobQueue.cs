@@ -12,7 +12,7 @@ namespace ServerCore
     {
         string _name;
         int _waitTick;
-        int _now;
+        long _now;
         object _lock = new object();
         ManualResetEvent _resetEvent = new ManualResetEvent(true);
         Thread _thread;
@@ -52,7 +52,7 @@ namespace ServerCore
             while (true)
             {
                 //_resetEvent.WaitOne();
-                if (_waitTick < Environment.TickCount - _now)
+                if (_waitTick < Environment.TickCount64 - _now)
                 {
                     lock (_lock)
                     {
@@ -62,7 +62,7 @@ namespace ServerCore
                             _jobQueue.Dequeue().Invoke();
                         }                  
                     }
-                    _now = Environment.TickCount;
+                    _now = Environment.TickCount64;
                 }
             }           
         }

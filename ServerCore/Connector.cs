@@ -1,5 +1,7 @@
-﻿using System;
+﻿using ServerCore.Log;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -10,44 +12,50 @@ namespace ServerCore
 {
     public class Connector
     {
+        static Connector _inst = new Connector();
+        public static Connector Inst { get { return _inst; } }
         IPEndPoint _endPoint;
         Func<Session> _sessionFactory;
+        TraceSource _ts;
         public void Init(IPEndPoint endPoint, Func<Session> func)
         {
             _endPoint = endPoint;
             _sessionFactory += func;
+            _ts = LogMgr.AddNewSource("Connector", SourceLevels.Information);
+            LogMgr.AddNewTextWriterListener("Connector","l_Connector" ,"connectLog.txt", SourceLevels.Information, TraceOptions.DateTime);          
         }
-        public void Connect(int count)
+        public void Connect(int count, object session = null)
         {
             for(int i = 0; i< count; i++)
             {
+                _ts.TraceInfo("connecting to server");
                 var args = new SocketAsyncEventArgs();
                 args.Completed += OnConnectCompleted;
                 args.RemoteEndPoint = _endPoint;
                 var socket = new Socket(_endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 bool pending = socket.ConnectAsync(args);
                 if (pending == false)
-                    OnConnectCompleted(this, args);
+                    OnConnectCompleted(session, args);
             }
         }
         public void OnConnectCompleted(object sender, SocketAsyncEventArgs args)
         {
             if(args.SocketError == SocketError.Success)
             {
-                var session = _sessionFactory.Invoke();
+                _ts.TraceInfo("[connector] connect success");
+                if (sender is not Session session)
+                    session = _sessionFactory.Invoke();
                 session.Init(args.ConnectSocket);
                 session.OnConnected();
             }
             else
             {
                 OnConnectFailed();
-                Console.WriteLine("Trying again");
-                Connect(1);
             }
         }
         public void OnConnectFailed()
-        {
-            Console.WriteLine("Packet connect failed");
+        { 
+            _ts.TraceEvent(TraceEventType.Warning, 1, "[connector] connect failed");
         }
         
     }

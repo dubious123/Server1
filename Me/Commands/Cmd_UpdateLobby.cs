@@ -27,7 +27,7 @@ namespace Me
             }
             Console.Write("Loading lobby");
             C_UpdateLobby c_packet = new C_UpdateLobby(ContentMgr.Inst.User);
-            SessionMgr.Inst.Find(1).RegisterSend(c_packet);
+            ContentMgr.Inst.GetSession().RegisterSend(c_packet);
             UpdateState(Define.Cmd_State.wait);
         }
         public override void Done()

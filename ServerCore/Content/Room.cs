@@ -4,20 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace ServerCore
 {
     public class Room
     {
         public RoomInfo Info;
-        ConcurrentBag<Session> _userbag;
+        ConcurrentDictionary<string,Session> _userDict;
         List<Chatting> _chatList;
         public uint ID;
         int _maxChatNum;
         static readonly object _lock = new object();
         public Room()
         {
-            _userbag = new ConcurrentBag<Session>();
+            _userDict = new ConcurrentDictionary<string, Session>();
             _chatList = new List<Chatting>();
             _maxChatNum = 100;
         }
@@ -25,16 +26,19 @@ namespace ServerCore
         {
             Info = info;
         }
-        public bool TryEnter(Session user)
+        public bool TryEnter(string id, Session session)
         {
-            bool result = _userbag.Contains(user);
-            if (result == false)
-            {
-                Console.WriteLine("doppelganger");
-                return result;
-            }
-            _userbag.Add(user);
-            return result;
+            if (_userDict.TryAdd(id, session) == false)
+                return false;
+            Info.CurrentUserNum = (ushort)_userDict.Count;
+            return true;
+        }
+        public bool TryGetOut(string id)
+        {
+            if (_userDict.TryRemove(id, out var session))
+                lock (_lock)
+                    Info.CurrentUserNum--;
+            return session != null;
         }
         public void PushChat(Chatting chat)
         {

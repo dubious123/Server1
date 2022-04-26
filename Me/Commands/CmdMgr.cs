@@ -77,5 +77,10 @@ namespace Me
                 return cmd;
             return null;
         }
+        public void Clear()
+        {
+            while (_cmdQueue.IsEmpty == false)
+                Dequeue();
+        }
     }
 }

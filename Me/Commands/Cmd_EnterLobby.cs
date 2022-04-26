@@ -24,7 +24,7 @@ namespace Me
             }
             C_EnterLobby c_packet = new C_EnterLobby(ContentMgr.Inst.User);
             var bytes = PacketMgr.Inst.PacketToByte(c_packet);
-            SessionMgr.Inst.Find(1).RegisterSend(bytes);
+            ContentMgr.Inst.GetSession().RegisterSend(bytes);
             Console.Write("Entering lobby");
             UpdateState(Define.Cmd_State.wait);
         }

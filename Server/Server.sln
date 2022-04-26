@@ -13,7 +13,29 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{D235165B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PacketTools", "..\PacketTools\PacketTools.csproj", "{1B8E26ED-2E12-4627-AC6D-16358FE4440E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Me", "..\Me\Me.csproj", "{F20DDD73-DA5F-47D0-AB0E-ECD3FA2AC557}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Me", "..\Me\Me.csproj", "{F20DDD73-DA5F-47D0-AB0E-ECD3FA2AC557}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "..\Test\Test.csproj", "{DBDD1148-4F91-4540-9235-74D5DE508019}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Logs", "Logs", "{96BB4E83-8626-4006-A011-130364373484}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{A2601B4F-9C39-43FB-88E8-C69F7E16A9EB}"
+	ProjectSection(SolutionItems) = preProject
+		..\Logs\Server\listenLog.txt = ..\Logs\Server\listenLog.txt
+		..\Logs\Server\Packet.txt = ..\Logs\Server\Packet.txt
+		..\Logs\Server\serverLog.txt = ..\Logs\Server\serverLog.txt
+		..\Logs\Server\sessionLog.txt = ..\Logs\Server\sessionLog.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{41BFDBE5-5E9C-48CB-8D70-51412F4397A6}"
+	ProjectSection(SolutionItems) = preProject
+		..\Logs\Client\clientLog.txt = ..\Logs\Client\clientLog.txt
+		..\Logs\Client\connectLog.txt = ..\Logs\Client\connectLog.txt
+		..\Logs\Client\Packet.txt = ..\Logs\Client\Packet.txt
+		..\Logs\Client\sessionLog.txt = ..\Logs\Client\sessionLog.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DummyClient", "DummyClient", "{829645A0-FB18-45E0-AA1C-38546970EA34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,12 +63,19 @@ Global
 		{F20DDD73-DA5F-47D0-AB0E-ECD3FA2AC557}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F20DDD73-DA5F-47D0-AB0E-ECD3FA2AC557}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F20DDD73-DA5F-47D0-AB0E-ECD3FA2AC557}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBDD1148-4F91-4540-9235-74D5DE508019}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBDD1148-4F91-4540-9235-74D5DE508019}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBDD1148-4F91-4540-9235-74D5DE508019}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBDD1148-4F91-4540-9235-74D5DE508019}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1B8E26ED-2E12-4627-AC6D-16358FE4440E} = {D235165B-0A8A-49FC-B2C0-8E551CA9A832}
+		{A2601B4F-9C39-43FB-88E8-C69F7E16A9EB} = {96BB4E83-8626-4006-A011-130364373484}
+		{41BFDBE5-5E9C-48CB-8D70-51412F4397A6} = {96BB4E83-8626-4006-A011-130364373484}
+		{829645A0-FB18-45E0-AA1C-38546970EA34} = {96BB4E83-8626-4006-A011-130364373484}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {10E2B23F-F3E4-47BB-92DE-31439C531F71}

@@ -7,6 +7,8 @@ using System.Net.Sockets;
 using System.Collections.Concurrent;
 using PacketTools;
 using System.Threading;
+using System.Diagnostics;
+using ServerCore.Log;
 
 namespace ServerCore
 {
@@ -28,6 +30,8 @@ namespace ServerCore
         protected RecvBuffer _recvBuff = new RecvBuffer(40490);
         protected SendBuffer _sendBuff = new SendBuffer();
         protected List<ArraySegment<byte>> _sendList = new List<ArraySegment<byte>>();
+
+        TraceSource _ts;
         public void Clear()
         {
             lock (_send)
@@ -42,6 +46,8 @@ namespace ServerCore
             _socket = socket;
             _recvArgs.Completed += OnReceiveCompleted;
             _sendArgs.Completed += OnSendCompleted;
+
+            _ts = LogMgr.GetTraceSource("Session");
         }
         //시작점
         #region Send
@@ -53,6 +59,7 @@ namespace ServerCore
         }
         public void RegisterSend(ArraySegment<byte> packet)
         {
+            _ts.TraceInfo($"[Session {SessionID}] : registered send {packet.Count} bytes");
             _sendBuff.Write(packet);
             if (!_sendRegistered)
                 _sendRegistered = true;
@@ -64,12 +71,20 @@ namespace ServerCore
         /// </summary>
         public void Send()
         {
-
+            _ts.TraceInfo($"[Session {SessionID}] : try sending");
             if (_sendPending)
+            {
+                _ts.TraceEvent(TraceEventType.Warning, 2, $"[Session {SessionID}] : sending canceled : session is pending");
                 return;
+            }
+                
             var list = _sendBuff.ReadAll();
             if (list.Count == 0)
+            {            
+                _ts.TraceEvent(TraceEventType.Warning, 3, $"[Session {SessionID}] : sending canceled : nothing to send");
                 return;
+            }
+
             _sendRegistered = false;
             _sendArgs.BufferList = list;
             //Console.WriteLine($"From Session {SessionID} Sending {_sendArgs.BufferList.Count} Packets");
@@ -81,6 +96,8 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
+                _ts.TraceEvent(TraceEventType.Warning, 4 ,$"[Session {SessionID}] : sending failed before sending\n" +
+                    $"error : {ex}");
                 OnSendFailed(ex);
             }
         }
@@ -88,10 +105,13 @@ namespace ServerCore
         {
             if(args.SocketError == SocketError.Success && args.BytesTransferred > 0)
             {
+                _ts.TraceInfo($"[Session {SessionID}] : sending {args.BytesTransferred} bytes completed");
                 OnSend(args);
             }
             else
             {
+                _ts.TraceEvent(TraceEventType.Warning, 5, $"[Session {SessionID}] : sending failed after sending\n" +
+                    $"socket errer :{args.SocketError}, transferred bytes : {args.BytesTransferred}/ ");
                 OnSendFailed(null);
             }
         }
@@ -102,6 +122,7 @@ namespace ServerCore
         static readonly object _receive = new object();
         public void RegisterReceive()
         {
+            _ts.TraceInfo($"[Session {SessionID}] : Register receive");
             lock (_receive)
             {
                 _recvBuff.Clear();             
@@ -115,6 +136,8 @@ namespace ServerCore
             }
             catch (Exception ex)
             {
+                _ts.TraceEvent(TraceEventType.Warning, 6, $"[Session {SessionID}] : receiving failed before receive\n" +
+                        $"error : {ex} ");
                 OnReceiveFailed(ex);
             }
         }
@@ -122,34 +145,48 @@ namespace ServerCore
         {
             if (args.SocketError == SocketError.Success && args.BytesTransferred > 0)
             {
+                _ts.TraceInfo($"[Session {SessionID}] : receive {args.BytesTransferred} bytes completed");
                 if (!_recvBuff.OnWrite(args.BytesTransferred))
                 {
-                    Console.WriteLine("RecvBuff don't have enough space");
+                    _ts.TraceEvent(TraceEventType.Error, 7, $"[Session {SessionID}] : there is not enough space in recvBuff and received bytes ignored");
+                    RegisterReceive();
                     return;
                 }
                 OnReceive(args);
                 RegisterReceive();
             }
             else
+            {
+                _ts.TraceEvent(TraceEventType.Warning, 8, $"[Session {SessionID}] : receive failed after receive\n" +
+    $"socket errer :{args.SocketError}, transferred bytes : {args.BytesTransferred}/ ");
                 OnReceiveFailed(null);
+            }
+                
 
         }
         #endregion
 
         public void CloseSession()
         {
+            _ts.TraceInfo($"[Session {SessionID}] : Closing session");
             OnDisconnect();
             try
             {
+                _ts.TraceInfo($"[Session {SessionID}] : Shutting down");
                 _socket.Shutdown(SocketShutdown.Both);
             }
             catch(Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                _ts.TraceEvent(TraceEventType.Error, 9, $"[Session {SessionID}] : shut down failed " +
+                    $"error : {ex}");
             }
             _socket.Close();
             
             Clear();
+        }
+        public bool GetSocketState()
+        {
+            return _socket.Connected;
         }
     }
 }

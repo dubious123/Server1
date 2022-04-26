@@ -5,28 +5,39 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static ServerCore.Define;
+using ServerCore;
+using System.Diagnostics;
+using ServerCore.Log;
 
 namespace Me
 {
     public abstract class Cmd
     {
-        
+        protected TraceSource _ts;
         public Cmd(Cmd_State state = Cmd_State.start, int waitLimit = 10)
         {
             _state = state;
             _waitLimit = waitLimit;
+            _ts = LogMgr.GetTraceSource("Client");
         }
         public Cmd(Cmd_State state)
         {
             _state = state;
+            _ts = LogMgr.GetTraceSource("Client");
         }
         Cmd_State _state;
         int _waitLimit;
         int _waitCount;
         protected string _errorMessage;
         
-        public void Perform()
+        public virtual void Perform()
         {
+            if (SessionMgr.Inst.Find(1).GetSocketState() == false)
+            {
+                Console.WriteLine("you are not connected to the server");
+                CmdMgr.Inst.Clear();
+                return;
+            }
             switch (_state)
             {
                 case Cmd_State.start:

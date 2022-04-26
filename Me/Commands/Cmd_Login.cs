@@ -34,7 +34,7 @@ namespace Me
             }
             C_Login loginPacket = new C_Login(id, pw);
             var packet = PacketMgr.Inst.PacketToByte(loginPacket);
-            SessionMgr.Inst.Find(1).RegisterSend(packet);
+            ContentMgr.Inst.GetSession().RegisterSend(packet);
             Console.Write("Waiting");
             UpdateState(Define.Cmd_State.wait);
         }

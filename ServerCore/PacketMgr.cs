@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using ServerCore.Packets;
 using ServerCore.Packets.Client;
 using ServerCore.Packets.Server;
+using ServerCore.Log;
+using System.Diagnostics;
 
 namespace ServerCore
 {
@@ -16,8 +18,11 @@ namespace ServerCore
         public static PacketMgr Inst { get { return _instance; } }
         static Dictionary<ushort, Func<byte[], IPacket>> _readDict;
 
+
         PacketMgr()
         {
+
+            
             _readDict = new Dictionary<ushort, Func<byte[], IPacket>>();
             _readDict.Add((ushort)Define.P_Id.c_login, BuildPacket<C_Login>);
             _readDict.Add((ushort)Define.P_Id.c_logout, BuildPacket<C_Logout>);

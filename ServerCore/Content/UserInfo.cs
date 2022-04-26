@@ -46,5 +46,9 @@ namespace ServerCore
                     return false;
             return true;
         }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();  
+        }
     }
 }

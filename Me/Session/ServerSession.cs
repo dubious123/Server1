@@ -12,13 +12,11 @@ namespace Me
     {
         public override void OnConnected()
         {
-            Console.WriteLine($"From server endpoint {_socket.RemoteEndPoint} Connected");
             RegisterReceive();
         }
 
         public override void OnDisconnect()
         {
-            Console.WriteLine($"From server endpoint {_socket.RemoteEndPoint} DisConnected");
         }
 
         public override void OnReceive(SocketAsyncEventArgs args)
@@ -39,12 +37,17 @@ namespace Me
         }
         public override void OnReceiveFailed(Exception ex)
         {
-            throw new NotImplementedException();
+            CmdMgr.Inst.Clear();
+            CloseSession();
         }
 
         public override void OnSendFailed(Exception ex)
         {
-            throw new NotImplementedException();
+            if(_socket.Connected == false)
+            {
+            }
+            CmdMgr.Inst.Clear();
+            CloseSession();
         }
     }
 }

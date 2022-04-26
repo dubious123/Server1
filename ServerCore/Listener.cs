@@ -1,9 +1,12 @@
-﻿using System;
+﻿using ServerCore.Log;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ServerCore
@@ -13,11 +16,16 @@ namespace ServerCore
         Socket _socket;
         IPEndPoint _endPoint;
         Func<Session> _sessionFactory;
+        TraceSource _ts;
+        int _textListenerIndex;
         public void Init(IPEndPoint endPoint, Func<Session> func)
         {
             _socket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             _endPoint = endPoint;
             _sessionFactory += func;
+            _ts = LogMgr.AddNewSource("Listener", SourceLevels.Information);
+            _textListenerIndex = 
+                LogMgr.AddNewTextWriterListener("Listener", "l_Listener", "listenLog.txt", SourceLevels.Information, TraceOptions.DateTime, TraceOptions.ThreadId);
         }
         public void Open()
         {
@@ -25,6 +33,7 @@ namespace ServerCore
             _socket.Listen(100);
             for(int i = 0; i < 10; i++)
             {
+                
                 var args = new SocketAsyncEventArgs();
                 args.Completed += OnAcceptCompleted;
                 RegisterAccept(args);
@@ -33,6 +42,7 @@ namespace ServerCore
         }
         void RegisterAccept(SocketAsyncEventArgs args)
         {
+            _ts.TraceInfo($"Throw new receive rod from thread [{Thread.CurrentThread.ManagedThreadId}]");
             args.AcceptSocket = null;
             bool pending = _socket.AcceptAsync(args);
             if (pending == false)
@@ -43,13 +53,15 @@ namespace ServerCore
         {
             if(args.SocketError == SocketError.Success)
             {
+                _ts.TraceInfo($"Accept success from thread : [{Thread.CurrentThread.ManagedThreadId}]");
                 var session = _sessionFactory.Invoke();
                 session.Init(args.AcceptSocket);
                 session.OnConnected();
             }
             else
             {
-                Console.WriteLine($"Socket Accept Failed : {args.SocketError}");
+                _ts.TraceEvent(TraceEventType.Warning, 3, $"Accept socket failed from thread : [{Thread.CurrentThread.ManagedThreadId}]\n" +
+                    $"  error : {args.SocketError}");
             }
             RegisterAccept(args);
         }
