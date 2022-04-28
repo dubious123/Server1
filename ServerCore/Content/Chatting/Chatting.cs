@@ -10,10 +10,12 @@ namespace ServerCore
     {
         public UserInfo User;
         public string Chat;
+        public DateTime Time;
         public Chatting(UserInfo user, string chat)
         {
             User = user;
             Chat = chat;
+            Time = DateTime.Now;
         }
     }
 }

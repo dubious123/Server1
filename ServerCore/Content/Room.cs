@@ -12,17 +12,21 @@ namespace ServerCore
     {
         public RoomInfo Info;
         ConcurrentDictionary<string,Session> _userDict;
-        List<Chatting> _chatList;
+        Chatting[] _chatArr;
         public uint ID;
         int _maxChatNum;
+        int _index;
         static readonly object _lock = new object();
-        public Room()
+        Action<ArraySegment<Chatting>, uint> _flush;
+        public Room(Action<ArraySegment<Chatting>, uint> flush)
         {
             _userDict = new ConcurrentDictionary<string, Session>();
-            _chatList = new List<Chatting>();
             _maxChatNum = 100;
+            _chatArr = new Chatting[_maxChatNum];
+
+            _flush += flush;
         }
-        public Room(RoomInfo info) : this()
+        public Room(Action<ArraySegment<Chatting>, uint> flush, RoomInfo info) : this(flush)
         {
             Info = info;
         }
@@ -44,8 +48,8 @@ namespace ServerCore
         {
             lock (_lock)
             {
-                _chatList.Add(chat);
-                if (_chatList.Count >= _maxChatNum)
+                _chatArr[_index++] = chat;
+                if (_index >= _maxChatNum)
                     Flush();
             }
         }
@@ -54,13 +58,20 @@ namespace ServerCore
             Chatting[] block;
             lock (_lock)
             {
-                block = _chatList.ToArray();
+                block = _chatArr.ToArray();
             }          
             int count = block.Length > 100 ? 100 : block.Length;
             return block[..count];
         }
-        public void Flush()
+        void Flush()
         {
+            lock (_lock)
+            {
+                _flush.Invoke(new ArraySegment<Chatting>(_chatArr), ID);
+                _chatArr = new Chatting[_maxChatNum];
+                _index = 0;
+            }
+
             return;
         }
        

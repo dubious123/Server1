@@ -21,6 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Logs", "Logs", "{96BB4E83-8
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{A2601B4F-9C39-43FB-88E8-C69F7E16A9EB}"
 	ProjectSection(SolutionItems) = preProject
+		..\Logs\Server\Chatting.txt = ..\Logs\Server\Chatting.txt
 		..\Logs\Server\listenLog.txt = ..\Logs\Server\listenLog.txt
 		..\Logs\Server\Packet.txt = ..\Logs\Server\Packet.txt
 		..\Logs\Server\serverLog.txt = ..\Logs\Server\serverLog.txt

@@ -62,8 +62,10 @@ namespace Me
             Console.WriteLine();
             foreach (var chat in chats)
             {
+                if (chat == null)
+                    break;
                 Console.WriteLine("---------------------------------------------");
-                Console.WriteLine($"{chat.User.Name} : {chat.Chat}");
+                Console.WriteLine($"[{chat.Time}] [{chat.User.Name}] : {chat.Chat}");
                 Console.WriteLine("---------------------------------------------");
                 Console.WriteLine();
             }

@@ -19,9 +19,9 @@ namespace ServerCore
         {
             _roomDict = new ConcurrentDictionary<uint, Room>();
         }
-        public void CreateNewRoom(RoomInfo roomInfo)
+        public void CreateNewRoom(RoomInfo roomInfo, Action<ArraySegment<Chatting>, uint> flush)
         {
-            Room inst = new Room(roomInfo);
+            Room inst = new Room(flush, roomInfo);
             inst.ID = GetNewRoomID();
             if (!_roomDict.TryAdd(inst.ID, inst))
             {
@@ -29,10 +29,10 @@ namespace ServerCore
                 return;
             }                     
         }
-        public void CreateNewRoom(string roomName, ushort maxNum)
+        public void CreateNewRoom(string roomName, ushort maxNum, Action<ArraySegment<Chatting>, uint> flush)
         {
             RoomInfo info = new RoomInfo(GetNewRoomID(),roomName, maxNum);
-            Room room = new Room(info);
+            Room room = new Room(flush,info);
             if (!_roomDict.TryAdd(info.ID,room))
             {
                 Console.WriteLine("Invalid room id");

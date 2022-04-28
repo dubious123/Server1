@@ -23,7 +23,7 @@ namespace DummyClient
             var endPoint = new IPEndPoint(ipAddress, 1234);
             Connector _connector = new Connector();
             _connector.Init(endPoint, () => SessionMgr.Inst.GenerateSession<D_ServerSession>());
-            _connector.Connect(500);
+            _connector.Connect(1000);
 
             JobMgr.Inst.CreateJobQueue("Send", 250, true);
             JobMgr.Inst.CreateJobQueue("Dummy", 50, false);
@@ -31,13 +31,13 @@ namespace DummyClient
             JobMgr.Inst.Push("Dummy", DummyMgr.Inst.ControlDummies);
             Console.WriteLine("press any key to create dummies");
             Console.ReadLine();
-            DummyMgr.Inst.Init(500);
+            DummyMgr.Inst.Init(1000);
             Console.WriteLine("press any key to start dummies");
             Console.ReadLine();
             JobMgr.Inst.StartQueue("Dummy");
             while (true)
             {
-
+                Thread.Sleep(System.Threading.Timeout.Infinite);
             }
         }
     }
