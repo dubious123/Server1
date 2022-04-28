@@ -65,12 +65,8 @@ namespace Server
                 return;
             var c_packet = packet as C_Logout;
             S_Logout s_packet;
-            if (Concierge.Inst.CheckUser(c_packet.User) == false)
-            {
-                s_packet = new S_Logout(false, "failed to check user");
-                session.RegisterSend(s_packet);
-            }
-            Gatekeeper.Inst.TryLogout(c_packet.User.Id);
+            if (Gatekeeper.Inst.TryLogout(c_packet.User.Id) == false)
+                return;
             s_packet = new S_Logout(true);
             session.RegisterSend(s_packet);
         }
@@ -120,6 +116,7 @@ namespace Server
             if (Concierge.Inst.Check_ReserveRoom(session, c_packet.User,c_packet.RoomId, ref s_packet.Message) == false)
             {
                 s_packet.Answer = false;
+                s_packet.User = c_packet.User; // if user != null : simple error, if null : fatal error
                 session.RegisterSend(s_packet);
                 return;
             }

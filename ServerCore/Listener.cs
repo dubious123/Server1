@@ -26,11 +26,12 @@ namespace ServerCore
             _ts = LogMgr.AddNewSource("Listener", SourceLevels.Information);
             _textListenerIndex = 
                 LogMgr.AddNewTextWriterListener("Listener", "l_Listener", "listenLog.txt", SourceLevels.Information, TraceOptions.DateTime, TraceOptions.ThreadId);
+            LogMgr.AddNewConsoleListener("Listener", "c_Listener", false,  SourceLevels.Warning, TraceOptions.DateTime, TraceOptions.ThreadId);
         }
         public void Open()
         {
             _socket.Bind(_endPoint);
-            _socket.Listen(100);
+            _socket.Listen(200);
             for(int i = 0; i < 10; i++)
             {
                 

@@ -22,16 +22,18 @@ namespace ServerCore
             _endPoint = endPoint;
             _sessionFactory += func;
             _ts = LogMgr.AddNewSource("Connector", SourceLevels.Information);
-            LogMgr.AddNewTextWriterListener("Connector","l_Connector" ,"connectLog.txt", SourceLevels.Information, TraceOptions.DateTime);          
+            LogMgr.AddNewTextWriterListener("Connector", "l_Connector", "connectLog.txt", SourceLevels.Information, TraceOptions.DateTime);
+            LogMgr.AddNewConsoleListener("Connector","c_Connector" ,false, SourceLevels.Warning, TraceOptions.DateTime);          
         }
         public void Connect(int count, object session = null)
         {
-            for(int i = 0; i< count; i++)
+            for(int i = 1; i<= count; i++)
             {
-                _ts.TraceInfo("connecting to server");
+                _ts.TraceInfo($"[connector] session[{i}] connecting to server ");
                 var args = new SocketAsyncEventArgs();
                 args.Completed += OnConnectCompleted;
                 args.RemoteEndPoint = _endPoint;
+                args.UserToken = i;
                 var socket = new Socket(_endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 bool pending = socket.ConnectAsync(args);
                 if (pending == false)
@@ -42,20 +44,22 @@ namespace ServerCore
         {
             if(args.SocketError == SocketError.Success)
             {
-                _ts.TraceInfo("[connector] connect success");
+                
                 if (sender is not Session session)
                     session = _sessionFactory.Invoke();
+                _ts.TraceInfo($"[connector] session [{session.SessionID}] connect success");
                 session.Init(args.ConnectSocket);
                 session.OnConnected();
             }
             else
             {
-                OnConnectFailed();
+                OnConnectFailed(args);
             }
         }
-        public void OnConnectFailed()
+        public void OnConnectFailed(SocketAsyncEventArgs arg)
         { 
-            _ts.TraceEvent(TraceEventType.Warning, 1, "[connector] connect failed");
+            _ts.TraceEvent(TraceEventType.Warning, 1, $"[connector] session[{(int)arg.UserToken}] connect failed {arg.SocketError}");
+            
         }
         
     }

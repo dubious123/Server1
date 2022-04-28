@@ -57,11 +57,9 @@ namespace ServerCore
         }
         public Session Find(uint id)
         {
-            _ts.Listeners[0].TraceOutputOptions |= TraceOptions.Callstack;
             _ts.TraceInfo($"[SessionMgr] Finding session {id}");
             if(_sessionDict.TryGetValue(id, out Session value) == false)
                 _ts.TraceEvent(TraceEventType.Error, 1, "[SessionMgr] Finding session failed : session Id is not in the dict");
-            _ts.Listeners[0].TraceOutputOptions -= TraceOptions.Callstack;
             return value;
         }
     }

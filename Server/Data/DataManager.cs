@@ -18,6 +18,10 @@ namespace Server.Data
         {
             _userDict = new ConcurrentDictionary<string, UserData>();
             _userDict.TryAdd("jonghun", new UserData("J.Han","jonghun","990827"));
+            for(int i = 1; i<501; i++)
+            {
+                _userDict.TryAdd($"User_{i}", new UserData($"Dummy_{i}",$"User_{i}",$"User_{i * 100}"));
+            }
             _lobby = new Lobby();
             _lobby.CreateNewRoom("TestRoom1", 100);
             _lobby.CreateNewRoom("TestRoom2", 100);

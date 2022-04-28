@@ -36,6 +36,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{41BFDB
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DummyClient", "DummyClient", "{829645A0-FB18-45E0-AA1C-38546970EA34}"
+	ProjectSection(SolutionItems) = preProject
+		..\Logs\DummyClient\connectLog.txt = ..\Logs\DummyClient\connectLog.txt
+		..\Logs\DummyClient\DummyClient.txt = ..\Logs\DummyClient\DummyClient.txt
+		..\Logs\DummyClient\sessionLog.txt = ..\Logs\DummyClient\sessionLog.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

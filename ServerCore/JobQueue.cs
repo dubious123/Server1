@@ -51,7 +51,6 @@ namespace ServerCore
         {
             while (true)
             {
-                //_resetEvent.WaitOne();
                 if (_waitTick < Environment.TickCount64 - _now)
                 {
                     lock (_lock)

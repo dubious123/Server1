@@ -30,7 +30,6 @@ namespace Server
             _listener.Open();
             
             JobMgr.Inst.CreateJobQueue("Send", 250, true);
-            JobMgr.Inst.CreateJobQueue("Json", 0, true);
             JobMgr.Inst.Push("Send", SessionMgr.Inst.Flush_Send);
             while (true)
             {

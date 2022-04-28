@@ -53,8 +53,10 @@ namespace Server
                 _ts.TraceEvent(TraceEventType.Warning, 22, $"[Gatekeeper] log-out failed : removing user[{id}] from guestBook failed");
                 return false;
             }                
-            if (Concierge.Inst.TryCheckOut(user) == false)
-                return false;
+            //if(user.UserState == Define.User_State.logout)
+            if(user.UserState == Define.User_State.lobby || user.UserState == Define.User_State.room)
+                if (Concierge.Inst.TryCheckOut(user) == false)
+                    return false;
             return true;
         }
         public UserInfo EnterLobby(string id)
