@@ -16,7 +16,7 @@ namespace ServerCore
         JobMgr()
         {
             _jobDict = new Dictionary<string, JobQueue>();
-            CreateJobQueue("PacketHandle", 250, true);
+            CreateJobQueue("PacketHandle", 0, true);
 
         }
         public void CreateJobQueue(string name, int waitTick, bool startNow)

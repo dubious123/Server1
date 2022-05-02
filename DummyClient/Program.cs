@@ -25,8 +25,8 @@ namespace DummyClient
             _connector.Init(endPoint, () => SessionMgr.Inst.GenerateSession<D_ServerSession>());
             _connector.Connect(1000);
 
-            JobMgr.Inst.CreateJobQueue("Send", 250, true);
-            JobMgr.Inst.CreateJobQueue("Dummy", 50, false);
+            JobMgr.Inst.CreateJobQueue("Send", 33, true);
+            JobMgr.Inst.CreateJobQueue("Dummy", 0, false);
             JobMgr.Inst.Push("Send", SessionMgr.Inst.Flush_Send);
             JobMgr.Inst.Push("Dummy", DummyMgr.Inst.ControlDummies);
             Console.WriteLine("press any key to create dummies");

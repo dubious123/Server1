@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +17,7 @@ namespace ServerCore
         object _lock = new object();
         ManualResetEvent _resetEvent = new ManualResetEvent(true);
         Thread _thread;
-        Queue<Action> _jobQueue = new Queue<Action>();
+        ConcurrentQueue<Action> _jobQueue = new ConcurrentQueue<Action>();
         public JobQueue(string name, int waitTick)
         {
             _name = name;
@@ -53,13 +54,10 @@ namespace ServerCore
             {
                 if (_waitTick < Environment.TickCount64 - _now)
                 {
-                    lock (_lock)
+                    for (int j = 0; j < _jobQueue.Count; j++)
                     {
-                        var i = _jobQueue.Count;
-                        for (int j = 0; j < i; j++) 
-                        {
-                            _jobQueue.Dequeue().Invoke();
-                        }                  
+                        if (_jobQueue.TryDequeue(out var action))
+                            action.Invoke();                       
                     }
                     _now = Environment.TickCount64;
                 }

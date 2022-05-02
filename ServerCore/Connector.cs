@@ -33,7 +33,6 @@ namespace ServerCore
                 var args = new SocketAsyncEventArgs();
                 args.Completed += OnConnectCompleted;
                 args.RemoteEndPoint = _endPoint;
-                args.UserToken = i;
                 var socket = new Socket(_endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 bool pending = socket.ConnectAsync(args);
                 if (pending == false)
@@ -58,8 +57,8 @@ namespace ServerCore
         }
         public void OnConnectFailed(SocketAsyncEventArgs arg)
         { 
-            _ts.TraceEvent(TraceEventType.Warning, 1, $"[connector] session[{(int)arg.UserToken}] connect failed {arg.SocketError}");
-            
+            _ts.TraceEvent(TraceEventType.Warning, 1, $"[connector] connect failed {arg.SocketError}");
+            Connect(1);
         }
         
     }

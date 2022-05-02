@@ -33,8 +33,7 @@ namespace ServerCore
             _socket.Bind(_endPoint);
             _socket.Listen(200);
             for(int i = 0; i < 10; i++)
-            {
-                
+            {               
                 var args = new SocketAsyncEventArgs();
                 args.Completed += OnAcceptCompleted;
                 RegisterAccept(args);
@@ -47,7 +46,7 @@ namespace ServerCore
             args.AcceptSocket = null;
             bool pending = _socket.AcceptAsync(args);
             if (pending == false)
-                OnAcceptCompleted(this, args);
+                OnAcceptCompleted(this, args);        
         }
         
         void OnAcceptCompleted(object sender, SocketAsyncEventArgs args)
