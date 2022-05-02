@@ -39,21 +39,17 @@ namespace Server
         }
         public bool CheckUser(UserInfo user)
         {
-            _tl.TraceOutputOptions |= TraceOptions.Callstack;
             _ts.TraceInfo($"[concierge] checking user[{user.Id}]");
             if (_checkin_dict.TryGetValue(user.Id, out var original) == false)
             {
                 _ts.TraceEvent(TraceEventType.Critical, 1, $"[concierge] cannot find user[{user.Id}] from check-in dict");
-                _tl.TraceOutputOptions -= TraceOptions.Callstack;
                 return false;
             }
             if(original.Equals(user) == false)
             {
                 _ts.TraceEvent(TraceEventType.Warning, 2, $"[concierge] user[{user.Id}] found from check-in dict is not the same user");
-                _tl.TraceOutputOptions -= TraceOptions.Callstack;
                 return false;
             }
-            _tl.TraceOutputOptions -= TraceOptions.Callstack;
             return true;       
         }
         public bool TryCheckIn(UserInfo user)

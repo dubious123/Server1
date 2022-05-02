@@ -28,8 +28,8 @@ namespace Server
             var endPoint = new IPEndPoint(ipAddress, 1234);
             _listener.Init(endPoint, ()=>SessionMgr.Inst.GenerateSession<ClientSession>());
             _listener.Open();
-            
-            JobMgr.Inst.CreateJobQueue("Send", 33, true);
+            JobMgr.Inst.CreateJobQueue("PacketHandle", 0, true, 3);
+            JobMgr.Inst.CreateJobQueue("Send", 33, true, 1);
             JobMgr.Inst.Push("Send", SessionMgr.Inst.Flush_Send);
             
             while (true)

@@ -23,8 +23,8 @@ namespace Me
             var endPoint = new IPEndPoint(ipAddress, 1234);
             Connector.Inst.Init(endPoint, () => SessionMgr.Inst.GenerateSession<ServerSession>());
             Connector.Inst.Connect(1);
-
-            JobMgr.Inst.CreateJobQueue("Send", 33, true);
+            JobMgr.Inst.CreateJobQueue("PacketHandle", 33, true, 1);
+            JobMgr.Inst.CreateJobQueue("Send", 33, true, 1);
             JobMgr.Inst.Push("Send", SessionMgr.Inst.Flush_Send);
 
             CmdMgr.Inst.Run();
