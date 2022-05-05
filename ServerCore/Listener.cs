@@ -31,12 +31,13 @@ namespace ServerCore
         public void Open()
         {
             _socket.Bind(_endPoint);
-            _socket.Listen(200);
-            for(int i = 0; i < 10; i++)
+            _socket.Listen(2000);
+            for(int i = 0; i < 100; i++)
             {               
                 var args = new SocketAsyncEventArgs();
                 args.Completed += OnAcceptCompleted;
                 RegisterAccept(args);
+
             }
 
         }

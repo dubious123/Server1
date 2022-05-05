@@ -32,7 +32,21 @@ namespace ServerCore
         protected List<ArraySegment<byte>> _sendList = new List<ArraySegment<byte>>();
 
         TraceSource _ts;
-        public void Clear()
+
+        private static void printThreadCounts()
+        {
+            int completionPortThreads, maxCompletionPortThreads;
+            int workerThreads, maxWorkerThreads;
+            ThreadPool.GetMaxThreads(out maxWorkerThreads, out maxCompletionPortThreads);
+            ThreadPool.GetAvailableThreads(out workerThreads, out completionPortThreads);
+            Console.WriteLine(
+                "Worker threads: {0}, Completion port threads: {1}, Total threads: {2}",
+                maxWorkerThreads - workerThreads,
+                maxCompletionPortThreads - completionPortThreads,
+                Process.GetCurrentProcess().Threads.Count
+            );
+        }
+            public void Clear()
         {
             lock (_send)
             {
@@ -44,7 +58,9 @@ namespace ServerCore
         public void Init(Socket socket)
         {
             _socket = socket;
-            _recvArgs.Completed += OnReceiveCompleted;
+ //           _recvArgs.Completed += OnReceiveCompleted;
+           _recvArgs.Completed += (obj, e)=> JobMgr.Inst.Push("PacketHandle", ()=> OnReceiveCompleted(obj, e));
+
             _sendArgs.Completed += OnSendCompleted;
 
             _ts = LogMgr.GetTraceSource("Session");
@@ -130,6 +146,7 @@ namespace ServerCore
             _recvArgs.SetBuffer(_recvBuff.WriteSegment);
             try
             {
+                printThreadCounts();
                 bool pending = _socket.ReceiveAsync(_recvArgs);
                 if (!pending)
                     OnReceiveCompleted(null, _recvArgs);
@@ -143,9 +160,9 @@ namespace ServerCore
         }
         void OnReceiveCompleted(object sender, SocketAsyncEventArgs args)
         {
+            printThreadCounts();
             if (args.SocketError == SocketError.Success && args.BytesTransferred > 0)
             {
-                _ts.TraceInfo($"[Session {SessionID}] : receive {args.BytesTransferred} bytes completed");
                 if (!_recvBuff.OnWrite(args.BytesTransferred))
                 {
                     _ts.TraceEvent(TraceEventType.Error, 7, $"[Session {SessionID}] : there is not enough space in recvBuff and received bytes ignored");
