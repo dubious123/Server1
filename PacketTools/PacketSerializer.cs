@@ -9,13 +9,13 @@ namespace PacketTools
 {
     public class PacketSerializer
     {
-        public static byte[] Serialize_Json<T>(T packet) where T : IPacket
-        {          
-            return Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(packet));
-        }
-        public static T DeSerialize_Json<T>(byte[] data) where T : IPacket
-        {
-            return JsonConvert.DeserializeObject<T>(Encoding.Unicode.GetString(data));
-        }
+        //public static byte[] Serialize_Json<T>(T packet) where T : IPacket
+        //{          
+        //    return Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(packet));
+        //}
+        //public static T DeSerialize_Json<T>(byte[] data) where T : IPacket
+        //{
+        //    return JsonConvert.DeserializeObject<T>(Encoding.Unicode.GetString(data));
+        //}
     }
 }

@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace PacketTools
 {
-    public class IPacket
-    {
-        public ushort PacketId = 0;
-        public uint PacketError;
-        public string Message;
-    }
+    //public class IPacket
+    //{
+    //    public ushort PacketId = 0;
+    //    public uint PacketError;
+    //    public string Message;
+    //}
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ServerCore.Packets.Server
 {
-    public class S_Logout : IPacket
+    public class S_Logout : BasePacket
     {
         public bool Answer;
         public S_Logout(bool answer, string message = null)

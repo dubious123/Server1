@@ -7,7 +7,7 @@ using PacketTools;
 
 namespace ServerCore.Packets.Server
 {
-    public class S_ExitRoom : IPacket
+    public class S_ExitRoom : BasePacket
     {
         public bool Answer;
         public UserInfo User;

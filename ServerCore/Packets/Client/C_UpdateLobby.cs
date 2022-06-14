@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ServerCore.Packets
 {
-    public class C_UpdateLobby : IPacket
+    public class C_UpdateLobby : BasePacket
     {
         public UserInfo User;
         public C_UpdateLobby(UserInfo user)

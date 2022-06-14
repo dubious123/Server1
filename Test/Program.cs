@@ -1,62 +1,87 @@
-﻿// The following configuration file can be used with this sample.
-// When using a configuration file #define ConfigFile.
-//            <source name="TraceTest" switchName="SourceSwitch" switchType="System.Diagnostics.SourceSwitch" >
-//                    <add name="console" type="System.Diagnostics.ConsoleTraceListener" initializeData="false" />
-//                    <remove name ="Default" />
-//            <!-- You can set the level at which tracing is to occur -->
-//            <add name="SourceSwitch" value="Warning" />
-//            <!-- You can turn tracing off -->
-//            <!--add name="SourceSwitch" value="Off" -->
-//        <trace autoflush="true" indentsize="4"></trace>
-#define TRACE
-//#define ConfigFile
-
-using System;
-using System.Collections;
-using System.Diagnostics;
-using System.Reflection;
-using System.IO;
-using System.Security.Permissions;
-
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Linq;
 namespace Testing
 {
+    public enum ClassType
+    {
+        Knight,
+        Archer,
+        Mage
+    }
+    public class Player
+    {
+        public int Level { get; set; }
+        public int Hp { get; set; }
+        public int Attack { get; set; }
+        public ClassType _ClassType { get; set; }
+        public List<int> Items { get; set; } = new List<int>();
+    }
     class TraceTest
     {
-        struct SimpleStruct
-        {
-            public long num;
-            public SimpleStruct(long n)
-            {
-                num = n;
-            }
-        }
-
         static void Main()
         {
-            SimpleStruct st = new SimpleStruct(10000000000);
-            long tick = Environment.TickCount64;
-            Console.WriteLine("Pass by Value Started");
-            PassByValue(st);
-            Console.WriteLine("Pass by Value End");
-            Console.WriteLine($"ExTick : {Environment.TickCount64 - tick}");
-            tick = Environment.TickCount64;
-            Console.WriteLine("Pass by Ref Started");
-            PassByRef(ref st);
-            Console.WriteLine("Pass by Ref End");
-            Console.WriteLine($"ExTick : {Environment.TickCount64 - tick}");
+            Random rand = new Random();
+            List<Player> players = new List<Player>();
+            for(int i = 0; i < 100; i++)
+            {
+                ClassType type = (ClassType)rand.Next(0, 3);
+                Player player = new Player()
+                {
+                    Attack = rand.Next(1, 100),
+                    Level = rand.Next(1, 100),
+                    Hp = rand.Next(1, 100),
+                    _ClassType = type
+                };
+                players.Add(player);
+                for(int j = 0; j < 100; j++)
+                {
+                    player.Items.Add(rand.Next(1, 101));
+                }
+            }
+
+            var ps =
+                from p in players
+                where p._ClassType == ClassType.Knight && p.Level >= 50
+                orderby p.Level
+                select p;
+            var count = ps.ToList().Count;
+
+            var ps2 =
+                from p in players
+                from i in p.Items
+                where i < 30
+                select new { p, i };
+            var li = ps2.ToList();
+
+            var ps3 =
+                from p in players
+                group p by p.Level into g
+                orderby g.Key
+                select new { g.Key, Players = g };
 
 
+            List<int> levels = new List<int>() { 1, 5, 10 };
+            var ps4 =
+                from p in players
+                join j in levels
+                on p.Level equals j
+                select p;
+
+            var ps5 =
+                 from p in players
+                 where p._ClassType == ClassType.Knight && p.Level >= 50
+                 orderby p.Level
+                 select p;
+
+            var ps6 = players
+                .Where(p => p._ClassType == ClassType.Knight && p.Level >= 50)
+                .OrderBy(j => j.Level)
+                .Select(o => o);
         }
 
-        static void PassByRef(ref SimpleStruct st)
-        {
-            for (int i = 0; i < st.num; i++)
-                st.num--;
-        }
-        static void PassByValue(SimpleStruct st)
-        {
-            for (int i = 0; i < st.num; i++)
-                st.num--;
-        } 
     }
 }

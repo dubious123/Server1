@@ -7,7 +7,7 @@ using PacketTools;
 
 namespace ServerCore
 {
-    public class C_Login : IPacket
+    public class C_Login : BasePacket
     {
         public readonly string ID;
         public readonly string PW;

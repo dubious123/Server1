@@ -24,7 +24,7 @@ namespace Server
             _ts = LogMgr.AddNewSource("Packet", SourceLevels.Information);
             LogMgr.AddNewTextWriterListener("Packet", "t_packet", "Packet.txt", SourceLevels.Information, TraceOptions.DateTime);
 
-            _handlerDict = new Dictionary<ushort, Action<IPacket, Session>>();
+            _handlerDict = new Dictionary<ushort, Action<BasePacket, Session>>();
             _handlerDict.Add((ushort)Define.P_Id.c_login, HandleLogin);
             _handlerDict.Add((ushort)Define.P_Id.c_logout, HandleLogout);
             _handlerDict.Add((ushort)Define.P_Id.c_enterLobby, HandleEnterLobby);
@@ -35,17 +35,17 @@ namespace Server
             _handlerDict.Add((ushort)Define.P_Id.c_chat, HandleChat);
 
         }
-        Dictionary<ushort, Action<IPacket, Session>> _handlerDict;
-        public void HandlePacket<T, P>(T packet, P session) where T : IPacket where P : Session
+        Dictionary<ushort, Action<BasePacket, Session>> _handlerDict;
+        public void HandlePacket<T, P>(T packet, P session) where T : BasePacket where P : Session
         {       
-            if(_handlerDict.TryGetValue(packet.PacketId, out Action<IPacket, Session> action) == false)
+            if(_handlerDict.TryGetValue(packet.PacketId, out Action<BasePacket, Session> action) == false)
             {
                 _ts.TraceEvent(TraceEventType.Warning, 0, $"[PacketHandler] Invalid packetId from session {session.SessionID}");
                 return;
             }
             action.Invoke(packet, session);
         }
-        void HandleLogin(IPacket packet, Session session)
+        void HandleLogin(BasePacket packet, Session session)
         {
             _ts.TraceInformation($"[PacketHandler] Handling Login packet from session {session.SessionID}");
             if (CheckPacketCasting<C_Login>(packet, session) == false)
@@ -58,7 +58,7 @@ namespace Server
             S_Login s_packet = new S_Login(user != null, user);
             session.RegisterSend(PacketMgr.Inst.PacketToByte(s_packet));
         }
-        void HandleLogout(IPacket packet, Session session)
+        void HandleLogout(BasePacket packet, Session session)
         {
             _ts.TraceInformation($"[PacketHandler] Handling Logout packet from session {session.SessionID}");
             if (CheckPacketCasting<C_Logout>(packet, session) == false)
@@ -70,7 +70,7 @@ namespace Server
             s_packet = new S_Logout(true);
             session.RegisterSend(s_packet);
         }
-        void HandleEnterLobby(IPacket packet, Session session)
+        void HandleEnterLobby(BasePacket packet, Session session)
         {
             _ts.TraceInformation($"[PacketHandler] Handling EnterLobby packet from session {session.SessionID}");
             if (CheckPacketCasting<C_EnterLobby>(packet, session) == false)
@@ -86,7 +86,7 @@ namespace Server
             S_EnterLobby s_packet = new S_EnterLobby(original != null, original);
             session.RegisterSend(PacketMgr.Inst.PacketToByte(s_packet));
         }
-        void HandleUpdateLobby(IPacket packet, Session session)
+        void HandleUpdateLobby(BasePacket packet, Session session)
         {
             _ts.TraceInformation($"[PacketHandler] Handling UpdateLobby packet from session {session.SessionID}");
             if (CheckPacketCasting<C_UpdateLobby>(packet, session) == false)
@@ -105,7 +105,7 @@ namespace Server
             s_packet = new S_UpdateLobby(info);
             session.RegisterSend(s_packet);
         }
-        void HandleEnterRoom(IPacket packet, Session session)
+        void HandleEnterRoom(BasePacket packet, Session session)
         {
             _ts.TraceInformation($"[PacketHandler] Handling EnterRoom packet from session {session.SessionID}");
             if (CheckPacketCasting<C_EnterRoom>(packet, session) == false)
@@ -125,7 +125,7 @@ namespace Server
             session.RegisterSend(s_packet);
 
         }
-        void HandleExitRoom(IPacket packet, Session session)
+        void HandleExitRoom(BasePacket packet, Session session)
         {
             _ts.TraceInformation($"[PacketHandler] Handling ExitRoom packet from session {session.SessionID}");
             if (CheckPacketCasting<C_ExitRoom>(packet, session) == false)
@@ -145,7 +145,7 @@ namespace Server
             s_packet = new S_ExitRoom(original, true);
             session.RegisterSend(s_packet);
         }
-        void HandleUpdateRoom(IPacket packet, Session session)
+        void HandleUpdateRoom(BasePacket packet, Session session)
         {
             _ts.TraceInformation($"[PacketHandler] Handling UpdateRoom packet from session {session.SessionID}");
             if (CheckPacketCasting<C_UpdateRoom>(packet, session) == false)
@@ -164,7 +164,7 @@ namespace Server
             s_packet = new S_UpdateRoom(chatting);
             session.RegisterSend(s_packet);
         }
-        void HandleChat(IPacket packet, Session session)
+        void HandleChat(BasePacket packet, Session session)
         {
             _ts.TraceInformation($"[PacketHandler] Handling Chat packet from session {session.SessionID}");
             if (CheckPacketCasting<C_Chat>(packet, session) == false)
@@ -184,7 +184,7 @@ namespace Server
             session.RegisterSend(s_packet);
 
         }
-        bool CheckPacketCasting<T>(IPacket packet, Session session) where T : IPacket
+        bool CheckPacketCasting<T>(BasePacket packet, Session session) where T : BasePacket
         {
             if (packet is T)
                 return true;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ServerCore
 {
-    public class C_EnterLobby : IPacket
+    public class C_EnterLobby : BasePacket
     {
         public UserInfo User;
         public C_EnterLobby(UserInfo user)

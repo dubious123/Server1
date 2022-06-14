@@ -33,20 +33,7 @@ namespace ServerCore
 
         TraceSource _ts;
 
-        private static void printThreadCounts()
-        {
-            int completionPortThreads, maxCompletionPortThreads;
-            int workerThreads, maxWorkerThreads;
-            ThreadPool.GetMaxThreads(out maxWorkerThreads, out maxCompletionPortThreads);
-            ThreadPool.GetAvailableThreads(out workerThreads, out completionPortThreads);
-            Console.WriteLine(
-                "Worker threads: {0}, Completion port threads: {1}, Total threads: {2}",
-                maxWorkerThreads - workerThreads,
-                maxCompletionPortThreads - completionPortThreads,
-                Process.GetCurrentProcess().Threads.Count
-            );
-        }
-            public void Clear()
+        public void Clear()
         {
             lock (_send)
             {
@@ -58,7 +45,6 @@ namespace ServerCore
         public void Init(Socket socket)
         {
             _socket = socket;
- //           _recvArgs.Completed += OnReceiveCompleted;
            _recvArgs.Completed += (obj, e)=> JobMgr.Inst.Push("PacketHandle", ()=> OnReceiveCompleted(obj, e));
 
             _sendArgs.Completed += OnSendCompleted;
@@ -69,7 +55,7 @@ namespace ServerCore
         #region Send
         //todo -> lock free
         static readonly object _send = new object();
-        public void RegisterSend(IPacket packet)
+        public void RegisterSend(BasePacket packet)
         {
             RegisterSend(PacketMgr.Inst.PacketToByte(packet));
         }
@@ -103,7 +89,6 @@ namespace ServerCore
 
             _sendRegistered = false;
             _sendArgs.BufferList = list;
-            //Console.WriteLine($"From Session {SessionID} Sending {_sendArgs.BufferList.Count} Packets");
             try
             {
                 _sendPending = _socket.SendAsync(_sendArgs);
@@ -146,7 +131,6 @@ namespace ServerCore
             _recvArgs.SetBuffer(_recvBuff.WriteSegment);
             try
             {
-                printThreadCounts();
                 bool pending = _socket.ReceiveAsync(_recvArgs);
                 if (!pending)
                     OnReceiveCompleted(null, _recvArgs);
@@ -160,7 +144,6 @@ namespace ServerCore
         }
         void OnReceiveCompleted(object sender, SocketAsyncEventArgs args)
         {
-            printThreadCounts();
             if (args.SocketError == SocketError.Success && args.BytesTransferred > 0)
             {
                 if (!_recvBuff.OnWrite(args.BytesTransferred))

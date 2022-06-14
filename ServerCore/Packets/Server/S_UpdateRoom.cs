@@ -7,7 +7,7 @@ using PacketTools;
 
 namespace ServerCore.Packets
 {
-    public class S_UpdateRoom : IPacket
+    public class S_UpdateRoom : BasePacket
     {
         public Chatting[] Chats;
         public S_UpdateRoom(Chatting[] chats)

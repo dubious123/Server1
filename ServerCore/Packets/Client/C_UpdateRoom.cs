@@ -7,7 +7,7 @@ using PacketTools;
 
 namespace ServerCore.Packets 
 { 
-    public class C_UpdateRoom : IPacket
+    public class C_UpdateRoom : BasePacket
     {
         public UserInfo User;
         public uint RoomId;

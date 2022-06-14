@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ServerCore.Packets.Client
 {
-    public class C_Chat : IPacket
+    public class C_Chat : BasePacket
     {
         public Chatting Chat;
         public C_Chat(Chatting chat)

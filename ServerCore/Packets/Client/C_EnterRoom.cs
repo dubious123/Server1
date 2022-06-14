@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ServerCore.Packets
 {
-    public class C_EnterRoom : IPacket
+    public class C_EnterRoom : BasePacket
     {
         public UserInfo User;
         public uint RoomId;

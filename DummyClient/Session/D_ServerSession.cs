@@ -22,19 +22,10 @@ namespace DummyClient
 
         public override void OnReceive(SocketAsyncEventArgs args)
         {
-            var packets = PacketMgr.Inst.ByteToPacket(_recvBuff);
-            //Console.WriteLine($"모아받은 패킷 수 : {packets.Count}");
-            foreach (var packet in packets)
+            foreach (var packet in PacketMgr.Inst.ByteToPacket(_recvBuff))
             {
                 D_PacketHandler.Inst.HandlePacket(packet, this);
             }
-            //JobMgr.Inst.Push("PacketHandle", () =>
-            //{
-            //    foreach (var packet in packets)
-            //    {
-            //        D_PacketHandler.Inst.HandlePacket(packet, this);
-            //    }
-            //});
         }
         public override void OnSend(SocketAsyncEventArgs args)
         {

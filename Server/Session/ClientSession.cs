@@ -30,20 +30,10 @@ namespace Server
 
         public override void OnReceive(SocketAsyncEventArgs args)
         {
-            var packets = PacketMgr.Inst.ByteToPacket(_recvBuff);
-            foreach (var packet in packets)
+            foreach (var packet in PacketMgr.Inst.ByteToPacket(_recvBuff))
             {
                 PacketHandler.Inst.HandlePacket(packet, this);
             }
-            Console.WriteLine($"모아받은 패킷 수 : {packets.Count}");
-            //JobMgr.Inst.Push("PacketHandle", () =>
-            //{
-            //    foreach (var packet in packets)
-            //    {
-            //        PacketHandler.Inst.HandlePacket(packet, this);
-            //    }
-            //});
-
         }
 
 

@@ -16,14 +16,14 @@ namespace ServerCore
     {
         static PacketMgr _instance = new PacketMgr();
         public static PacketMgr Inst { get { return _instance; } }
-        static Dictionary<ushort, Func<byte[], IPacket>> _readDict;
+        static Dictionary<ushort, Func<byte[], BasePacket>> _readDict;
 
 
         PacketMgr()
         {
 
             
-            _readDict = new Dictionary<ushort, Func<byte[], IPacket>>();
+            _readDict = new Dictionary<ushort, Func<byte[], BasePacket>>();
             _readDict.Add((ushort)Define.P_Id.c_login, BuildPacket<C_Login>);
             _readDict.Add((ushort)Define.P_Id.c_logout, BuildPacket<C_Logout>);
             _readDict.Add((ushort)Define.P_Id.c_enterLobby, BuildPacket<C_EnterLobby>);
@@ -43,10 +43,10 @@ namespace ServerCore
             _readDict.Add((ushort)Define.P_Id.s_updateRoom, BuildPacket<S_UpdateRoom>);
         }
 
-        public List<IPacket> ByteToPacket(RecvBuffer buffer)
+        public List<BasePacket> ByteToPacket(RecvBuffer buffer)
         {
-            List<IPacket> list = new List<IPacket>();
-            Func<byte[], IPacket> func;
+            List<BasePacket> list = new List<BasePacket>();
+            Func<byte[], BasePacket> func;
             while (buffer.CanRead())
             {
                 var packetSize = BitConverter.ToUInt16(buffer.Read(2)) - 4;
@@ -61,21 +61,21 @@ namespace ServerCore
             return list;
         }
         
-        T BuildPacket<T>(byte[] json) where T : IPacket
+        T BuildPacket<T>(byte[] json) where T : BasePacket
         {
-            return PacketSerializer.DeSerialize_Json<T>(json);
+            return Util.DeSerialize_Json<T>(json);
         }
 
 
 
-        public byte[] PacketToByte<T>(T packet) where T : IPacket
+        public byte[] PacketToByte<T>(T packet) where T : BasePacket
         {           
-            var json = PacketSerializer.Serialize_Json<T>(packet);
+            var json = Util.Serialize_Json<T>(packet);
             return AttachHeader((ushort)(json.Length + 4), packet.PacketId, json);
         }
-        public void PacketToByte<T>(T packet, out byte[] arr) where T : IPacket
+        public void PacketToByte<T>(T packet, out byte[] arr) where T : BasePacket
         {
-            var json = PacketSerializer.Serialize_Json<T>(packet);
+            var json = Util.Serialize_Json<T>(packet);
             arr = AttachHeader((ushort)(json.Length + 4), packet.PacketId, json);
             if(arr == null)
             {

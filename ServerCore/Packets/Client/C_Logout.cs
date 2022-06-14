@@ -7,7 +7,7 @@ using PacketTools;
 
 namespace ServerCore.Packets.Client
 {
-    public class C_Logout : IPacket
+    public class C_Logout : BasePacket
     {
         public UserInfo User;
         public C_Logout(UserInfo user)

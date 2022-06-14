@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ServerCore
 {
-    public class S_Login : IPacket
+    public class S_Login : BasePacket
     {
         public bool Accepted;
         public UserInfo User;
